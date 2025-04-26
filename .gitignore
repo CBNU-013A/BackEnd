@@ -1,1 +1,21 @@
+# 환경 변수
 .env
+
+# Node.js
+node_modules/
+
+# 빌드 결과
+build/
+dist/
+
+# Flutter
+build/
+
+# VSCode 설정
+.vscode/
+
+# OS별 파일
+.DS_Store
+
+# 로그
+*.log

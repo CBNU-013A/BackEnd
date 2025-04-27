@@ -28,7 +28,7 @@ const mongoURI =
   `@${process.env.MONGO_CLUSTER}/${process.env.MONGO_DB}?retryWrites=true&w=majority`;
 
 mongoose
-  .connect(process.env.MONGODB_URI)
+  .connect(mongoURI)
   .then(() => {
     console.log("✅ MongoDB 연결 성공");
     app.listen(PORT, () => {

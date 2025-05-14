@@ -1,4 +1,4 @@
-const mongoose = requiconst mongoose = require("mongoose");
+const mongoose = require("mongoose");
 const dotenv = require("dotenv");
 
 dotenv.config(); // .env 파일 로드
@@ -19,7 +19,8 @@ async function connectDB() {
   }
 }
 
-module.exports = connectDB;re("mongoose");
+module.exports = connectDB;
+re("mongoose");
 const dotenv = require("dotenv");
 
 dotenv.config(); // .env 파일 로드

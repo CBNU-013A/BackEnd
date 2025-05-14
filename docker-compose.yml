@@ -3,22 +3,24 @@ services:
     image: mongo:latest
     container_name: mongodb
     ports:
-      - "27017:27017" # 포트 설정은 따로 'ports' 안에
-    environment:
+      - "27018:27017" #호스트 : 도커 컨테이너 안 몽고디비
+    environment: 
       MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
       MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
     volumes:
       - mongodb_data:/data/db
 
   app:
-    build: .
+    build: 
+      context: .
+      dockerfile: Dockerfile
     container_name: app-container
     ports:
       - "8001:8001"
     depends_on:
       - mongodb
     environment:
-      MONGO_URI: mongodb://mongodb:27017/mydatabase
+      MONGO_URI: mongodb+srv://${MONGO_INITDB_ROOT_USERNAME}:${MONGO_INITDB_ROOT_PASSWORD}@${MONGO_CLUSTER}t/${MONGO_DB}?retryWrites=true&w=majority
 
 volumes:
   mongodb_data:

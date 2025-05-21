@@ -1,5 +1,7 @@
-# Back-End 
+# Back-End
+
 ### Docker 실행 방법
+
 ```
 # 도커 빌드 + 실행
 docker-compose up --build
@@ -8,6 +10,7 @@ docker-compose down
 ```
 
 ### 프로젝트 주요 구조
+
 ```
 Back-End/
 ├── app.js                  # 메인 서버 엔트리 포인트 (Express 서버 설정)
@@ -22,6 +25,7 @@ Back-End/
     │   ├── authController.js       # 사용자 인증 관련 로직
     │   ├── keywordsController.js   # 키워드 관련 API 로직
     │   ├── locationController.js   # 장소 관련 API 로직
+    │   ├── reviewController.js     # 리뷰 관련 API 로직
     │   └── userController.js       # 사용자 정보 관련 API 로직
     ├── database.js             # MongoDB 연결 설정 파일
     ├── json/                   # 초기 데이터 파일(json) 디렉토리
@@ -37,6 +41,7 @@ Back-End/
     │   ├── authRoutes.js           # 사용자 인증 라우트
     │   ├── keywordsRoutes.js       # 키워드 관련 라우트
     │   ├── locationRoutes.js       # 장소 관련 라우트
+    │   ├── reviewRoutes.js         # 리뷰 관련 라우트
     │   └── userRoutes.js           # 사용자 정보 관련 라우트
     └── setDB.js                # DB 초기 데이터 세팅 스크립트
 ```

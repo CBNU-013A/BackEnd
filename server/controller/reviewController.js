@@ -2,11 +2,13 @@ const Review = require("../models/Review");
 
 exports.createReview = async (req, res) => {
   try {
-    const { content, author, locationId } = req.body;
+    const content = req.body.content;
+    const userId = req.user._id; // ✅ JWT에서 해석된 사용자 ID
+    const locationId = req.params.locationId; // ✅ URL 경로에서 가져옴;
 
     const review = new Review({
       content,
-      author,
+      author: userId,
       location: locationId,
     });
 

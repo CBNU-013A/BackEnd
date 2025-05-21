@@ -15,7 +15,7 @@ app.use(cors());
 app.use(express.json());
 
 // ❗ API 경로 설정 (여기가 아주 중요)
-app.use("/api/auth", authRoutes);
+app.use("/api", authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/keywords", keywordRoutes);
 app.use("/api/location", locationRoutes);

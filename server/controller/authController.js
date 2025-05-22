@@ -50,7 +50,7 @@ exports.login = async (req, res) => {
 
     const token = generateToken(user);
 
-    res.status(200).json({ message: "로그인 성공", token });
+    res.status(200).json({ message: "로그인 성공", token, user });
   } catch (err) {
     res.status(500).json({ error: "로그인 실패", detail: err.message });
   }

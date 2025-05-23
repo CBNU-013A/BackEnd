@@ -13,7 +13,7 @@ exports.getAllLocations = async (req, res) => {
 exports.getLocationByPlaceName = async (req, res) => {
   try {
     const { placeName } = req.params;
-    const location = await Location.findOne({ name: placeName });
+    const location = await Location.findOne({ title: placeName });
 
     if (!location) {
       return res.status(404).json({ error: "장소를 찾을 수 없습니다." });

@@ -1,12 +1,12 @@
 [
   {
-    "name": "제주 성산일출봉",
-    "address": "제주특별자치도 서귀포시 성산읍 성산리",
-    "location": {
-      "latitude": 33.458915,
-      "longitude": 126.943828
-    },
-    "tell": "064-710-7923",
+    "title": "제주 성산일출봉",
+    "addr1": "제주특별자치도 서귀포시 성산읍 성산리",
+
+    "mapy": 33.458915,
+    "mapx": 126.943828,
+
+    "tel": "064-710-7923",
     "keywords": [
       {
         "name": "가격",
@@ -146,22 +146,19 @@
       }
     ],
     "review": ["성산일출봉 리뷰1", "성산일출봉 리뷰2", "성산일출봉 리뷰3"],
-    "image": [
-      "https://encrypted-tbn1.gstatic.com/licensed-image?q=tbn:ANd9GcRM3zWKXQfX-6vd3wKpn-yTPoj0oWIuAVgg7TQi6T-AzbYMe0quwmnB8PDPryYMnwKMdEdatbiCoGWUpz7DiXfIqSX0pl2culQjx9xu5ck",
-      "https://encrypted-tbn0.gstatic.com/licensed-image?q=tbn:ANd9GcR8YaEFWFOfd29vtccb3EisO8K2aSNWP6NPX6LVBilOctz0N881qh1t2BLoaPgfD_-cL2Jh31tpfz-b6RO38dIx2vy0NjJcLqcNW9r0Cw",
-      "https://encrypted-tbn1.gstatic.com/licensed-image?q=tbn:ANd9GcRM3zWKXQfX-6vd3wKpn-yTPoj0oWIuAVgg7TQi6T-AzbYMe0quwmnB8PDPryYMnwKMdEdatbiCoGWUpz7DiXfIqSX0pl2culQjx9xu5ck"
-    ],
+    "firstimage": "https://encrypted-tbn1.gstatic.com/licensed-image?q=tbn:ANd9GcRM3zWKXQfX-6vd3wKpn-yTPoj0oWIuAVgg7TQi6T-AzbYMe0quwmnB8PDPryYMnwKMdEdatbiCoGWUpz7DiXfIqSX0pl2culQjx9xu5ck",
+    "firstimage2": "https://encrypted-tbn0.gstatic.com/licensed-image?q=tbn:ANd9GcR8YaEFWFOfd29vtccb3EisO8K2aSNWP6NPX6LVBilOctz0N881qh1t2BLoaPgfD_-cL2Jh31tpfz-b6RO38dIx2vy0NjJcLqcNW9r0Cw",
+
     "likes": 0
   },
 
   {
-    "name": "청남대",
-    "address": "충청북도 청주시 상당구 문의면 청남대길 646",
-    "location": {
-      "latitude": 36.462537,
-      "longitude": 127.490775
-    },
-    "tell": "043-257-5080",
+    "title": "청남대",
+    "addr1": "충청북도 청주시 상당구 문의면 청남대길 646",
+    "mapy": 36.462537,
+    "mapx": 127.490775,
+
+    "tel": "043-257-5080",
     "keywords": [
       {
         "name": "가격",
@@ -568,18 +565,15 @@
       "역사적인 장소를 아주 잘 관리했습니다.",
       "관광지 옆에 위치해 있어요."
     ],
-    "image": [
-      "https://lh5.googleusercontent.com/p/AF1QipOUgASoc5eWtlwa6NqJiAlZNClrnapqB3cAwTRA=w408-h244-k-no"
-    ]
+    "firstimage": "https://lh5.googleusercontent.com/p/AF1QipOUgASoc5eWtlwa6NqJiAlZNClrnapqB3cAwTRA=w408-h244-k-no"
   },
   {
-    "name": "상당산성",
-    "address": "충청북도 청주시 상당구 산성동 산28-2",
-    "location": {
-      "latitude": 36.661856,
-      "longitude": 127.539881
-    },
-    "tell": "043-200-2114",
+    "title": "상당산성",
+    "addr1": "충청북도 청주시 상당구 산성동 산28-2",
+
+    "mapy": 36.661856,
+    "mapx": 127.539881,
+    "tel": "043-200-2114",
     "keywords": [
       {
         "name": "가격",
@@ -969,19 +963,16 @@
       "훌륭한 전망이 있는 곳입니다.",
       "멋진 산책을 즐길 수 있습니다."
     ],
-    "image": [
-      "https://lh5.googleusercontent.com/p/AF1QipM_CZU4M4WcO79koVAKSrc819MkARVpKqRJa7nt=w408-h306-k-no",
-      "https://lh5.googleusercontent.com/p/AF1QipM_CZU4M4WcO79koVAKSrc819MkARVpKqRJa7nt=w408-h306-k-no"
-    ]
+    "firstimage": "https://lh5.googleusercontent.com/p/AF1QipM_CZU4M4WcO79koVAKSrc819MkARVpKqRJa7nt=w408-h306-k-no",
+    "firstimage2": "https://lh5.googleusercontent.com/p/AF1QipM_CZU4M4WcO79koVAKSrc819MkARVpKqRJa7nt=w408-h306-k-no"
   },
   {
-    "name": "국립청주박물관",
-    "address": "충청북도 청주시 상당구 명암로 143",
-    "location": {
-      "latitude": 36.650066,
-      "longitude": 127.513557
-    },
-    "tell": "043-229-6500",
+    "title": "국립청주박물관",
+    "addr1": "충청북도 청주시 상당구 명암로 143",
+
+    "mapy": 36.650066,
+    "mapx": 127.513557,
+    "tel": "043-229-6500",
     "keywords": [
       {
         "name": "가격",
@@ -1327,18 +1318,15 @@
       "정말 놀라웠어요.",
       "좋은"
     ],
-    "image": [
-      "https://lh5.googleusercontent.com/p/AF1QipODOqU_MWj_yqU3tX658xXrBAwcuNl2pO2fF0O2=w426-h240-k-no"
-    ]
+    "firstimage": "https://lh5.googleusercontent.com/p/AF1QipODOqU_MWj_yqU3tX658xXrBAwcuNl2pO2fF0O2=w426-h240-k-no"
   },
   {
-    "name": "수암골",
-    "address": "충청북도 청주시 상당구 수동 81-12",
-    "location": {
-      "latitude": 36.648412,
-      "longitude": 127.497455
-    },
-    "tell": "043-200-2232",
+    "title": "수암골",
+    "addr1": "충청북도 청주시 상당구 수동 81-12",
+
+    "mapy": 36.648412,
+    "mapx": 127.497455,
+    "tel": "043-200-2232",
     "keywords": [
       {
         "name": "가격",
@@ -1694,18 +1682,15 @@
       "멋진",
       "아늑한"
     ],
-    "image": [
-      "https://lh5.googleusercontent.com/p/AF1QipMgH-dqXLqw5MTzS69nszRmOUpJY1rERRtY_mMS=w408-h544-k-no"
-    ]
+    "firstimage": "https://lh5.googleusercontent.com/p/AF1QipMgH-dqXLqw5MTzS69nszRmOUpJY1rERRtY_mMS=w408-h544-k-no"
   },
   {
-    "name": "국립현대미술관 청주",
-    "address": "충청북도 청주시 상당구 상당로 314",
-    "location": {
-      "latitude": 36.656225,
-      "longitude": 127.490148
-    },
-    "tell": "043-261-1400",
+    "title": "국립현대미술관 청주",
+    "addr1": "충청북도 청주시 상당구 상당로 314",
+
+    "mapy": 36.656225,
+    "mapx": 127.490148,
+    "tel": "043-261-1400",
     "keywords": [
       {
         "name": "가격",
@@ -2006,19 +1991,15 @@
       "잘했어요.",
       "방문하기에 인상적인 장소."
     ],
-    "image": [
-      "https://lh5.googleusercontent.com/p/AF1QipPIFfqpH3VGCglUyR__Dq-LK0bVXUg7mFHoZsuU=w408-h272-k-no"
-    ]
+    "firstimage": "https://lh5.googleusercontent.com/p/AF1QipPIFfqpH3VGCglUyR__Dq-LK0bVXUg7mFHoZsuU=w408-h272-k-no"
   },
   {
-    "id": "loc016",
-    "name": "청주동물원",
-    "address": "28311, 224 명암로 상당구 청주시 충청북도",
-    "location": {
-      "latitude": 36.652813,
-      "longitude": 127.523507
-    },
-    "tell": "043-201-4880",
+    "title": "청주동물원",
+    "addr1": "28311, 224 명암로 상당구 청주시 충청북도",
+
+    "mapy": 36.652813,
+    "mapx": 127.523507,
+    "tel": "043-201-4880",
     "keywords": [
       {
         "name": "가격",
@@ -2337,13 +2318,12 @@
     ]
   },
   {
-    "name": "문암생태공원",
-    "address": "충청북도 청주시 흥덕구 문암동 122-2",
-    "location": {
-      "latitude": 36.663725,
-      "longitude": 127.437774
-    },
-    "tell": "043-201-0732",
+    "title": "문암생태공원",
+    "addr1": "충청북도 청주시 흥덕구 문암동 122-2",
+
+    "mapy": 36.663725,
+    "mapx": 127.437774,
+    "tel": "043-201-0732",
     "keywords": [
       {
         "name": "가격",
@@ -2695,13 +2675,12 @@
     ]
   },
   {
-    "name": "정북동 토성",
-    "address": "충청북도 청주시 상당구 정북동 351-1",
-    "location": {
-      "latitude": 36.68867,
-      "longitude": 127.456198
-    },
-    "tell": "043-220-6168",
+    "title": "정북동 토성",
+    "addr1": "충청북도 청주시 상당구 정북동 351-1",
+
+    "mapy": 36.68867,
+    "mapx": 127.456198,
+    "tel": "043-220-6168",
     "keywords": [
       {
         "name": "가격",
@@ -3086,13 +3065,12 @@
     ]
   },
   {
-    "name": "육거리종합시장",
-    "address": "충청북도 청주시 상당구 석교동 60-4",
-    "location": {
-      "latitude": 36.627884,
-      "longitude": 127.48857
-    },
-    "tell": "043-223-6696",
+    "title": "육거리종합시장",
+    "addr1": "충청북도 청주시 상당구 석교동 60-4",
+
+    "mapy": 36.627884,
+    "mapx": 127.48857,
+    "tel": "043-223-6696",
     "keywords": [
       {
         "name": "가격",
@@ -3481,13 +3459,12 @@
     ]
   },
   {
-    "name": "오창 호수공원",
-    "address": "충청북도 청주시 청원구 오창읍 오창공원로 311",
-    "location": {
-      "latitude": 36.715488,
-      "longitude": 127.42648
-    },
-    "tell": "043-201-8622",
+    "title": "오창 호수공원",
+    "addr1": "충청북도 청주시 청원구 오창읍 오창공원로 311",
+
+    "mapy": 36.715488,
+    "mapx": 127.42648,
+    "tel": "043-201-8622",
     "keywords": [
       {
         "name": "가격",
@@ -3832,13 +3809,12 @@
     ]
   },
   {
-    "name": "청주 고인쇄박물관",
-    "address": "충청북도 청주시 흥덕구 직지대로 713",
-    "location": {
-      "latitude": 36.644389,
-      "longitude": 127.471904
-    },
-    "tell": null,
+    "title": "청주 고인쇄박물관",
+    "addr1": "충청북도 청주시 흥덕구 직지대로 713",
+
+    "mapy": 36.644389,
+    "mapx": 127.471904,
+    "tel": null,
     "keywords": [
       {
         "name": "가격",
@@ -4185,13 +4161,12 @@
     ]
   },
   {
-    "name": "용화사",
-    "address": "충청북도 청주시 서원구 무심서로 565",
-    "location": {
-      "latitude": 36.641713,
-      "longitude": 127.482196
-    },
-    "tell": "043-274-2159",
+    "title": "용화사",
+    "addr1": "충청북도 청주시 서원구 무심서로 565",
+
+    "mapy": 36.641713,
+    "mapx": 127.482196,
+    "tel": "043-274-2159",
     "keywords": [
       {
         "name": "가격",

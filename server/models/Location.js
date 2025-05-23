@@ -23,18 +23,23 @@ module.exports =
   mongoose.models.Keyword || mongoose.model("Keyword", KeywordSchema);
 
 const LocationSchema = new mongoose.Schema({
-  //id: { type: String, required: true, unique: true }, // 고유한 ID
-  name: { type: String, required: true, unique: true }, // 여행지 이름
-  address: { type: String, required: true }, // 여행지 주소
-  location: {
-    latitude: { type: Number, required: true }, // 위도
-    longitude: { type: Number, required: true }, // 경도
-  },
-  image: [{ type: String, required: false }],
-  tell: { type: String, required: false }, // 전화번호
-  keywords: [KeywordSchema], //키워드
-  review: [{ type: String, required: false }], // 리뷰
-  likes: { type: Number, default: 0 }, //좋아요
+  title: { type: String, required: true }, // 여행지 이름
+  image: [{ type: String }],
+  tel: { type: String },
+  keywords: [KeywordSchema], // 키워드
+  review: [{ type: String }], // 리뷰
+  likes: { type: Number, default: 0 }, // 좋아요
+  contentid: { type: String },
+  contenttypeid: { type: String },
+  homepage: { type: String },
+  firstimage: { type: String },
+  firstimage2: { type: String },
+  areacode: { type: String },
+  addr1: { type: String },
+  zipcode: { type: String },
+  mapx: { type: Number },
+  mapy: { type: Number },
+  overview: { type: String },
 });
 
 module.exports = mongoose.model("Location", LocationSchema);

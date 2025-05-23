@@ -1,15 +1,17 @@
 const mongoose = require("mongoose");
 const fs = require("fs");
 const path = require("path");
-const connectDB = require("./database"); // MongoDB 연결
+const dotenv = require("dotenv");
+const connectDB = require("./database");
 const Location = require("./models/Location");
 
+dotenv.config();
 async function insertLocation() {
   try {
     await connectDB(); // MongoDB 연결
 
     // JSON 파일 읽기
-    const filePath = path.join(__dirname, "json", "location.json");
+    const filePath = path.join(__dirname, "json", "chungbuk_common.json");
     const data = fs.readFileSync(filePath, "utf-8");
     const sampleLocation = JSON.parse(data);
 
@@ -20,18 +22,18 @@ async function insertLocation() {
       sampleLocation.map(async (location) => {
         try {
           const updatedLocation = await Location.findOneAndUpdate(
-            { name: location.name }, // 🔹 검색 조건 (ID 기준)
+            { contentid: location.contentid }, // 🔹 검색 조건 (contentid 기준)
             location, // 업데이트할 데이터
             { new: true, upsert: true, runValidators: true } // ✅ 없으면 삽입 (upsert), 있으면 업데이트
           );
 
           if (updatedLocation) {
             console.log(
-              `✅ 장소 저장 완료 (업데이트 또는 추가됨): ${location.name}`
+              `✅ 장소 저장 완료 (업데이트 또는 추가됨): ${location.title}`
             );
           }
         } catch (error) {
-          console.error(`❌ 장소 저장 실패 (${location.name}):`, error);
+          console.error(`❌ 장소 저장 실패 (${location.title}):`, error);
         }
       })
     );

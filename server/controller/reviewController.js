@@ -22,6 +22,24 @@ exports.createReview = async (req, res) => {
   }
 };
 
+exports.getReviewsByLocation = async (req, res) => {
+  try {
+    const locationId = req.params.locationId;
+
+    const reviews = await Review.find({ location: locationId }).select(
+      "author content"
+    );
+
+    res.status(200).json({
+      message: "리뷰 목록 조회 성공",
+      reviews,
+    });
+  } catch (err) {
+    console.error("❌ 리뷰 조회 실패:", err);
+    res.status(500).json({ error: "리뷰 조회 실패", detail: err.message });
+  }
+};
+
 exports.deleteReview = async (req, res) => {
   try {
     const reviewId = req.params.reviewId;

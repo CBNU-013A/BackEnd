@@ -14,7 +14,7 @@ router.post("/:userId/recentsearch", userController.addRecentSearch);
 router.get("/:userId/recentsearch", userController.getRecentSearch);
 router.delete("/:userId/recentsearch", userController.resetRecentSearch);
 router.delete(
-  "/:userId/recentsearch/:recentsearch",
+  "/:userId/recentsearch/:locationId",
   userController.deleteRecentSearch
 );
 

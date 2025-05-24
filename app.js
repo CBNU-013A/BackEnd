@@ -19,7 +19,7 @@ app.use("/api", authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/keywords", keywordRoutes);
 app.use("/api/location", locationRoutes);
-app.use("/api", reviewRoutes);
+app.use("/api/review", reviewRoutes);
 
 const PORT = process.env.PORT || 8001;
 

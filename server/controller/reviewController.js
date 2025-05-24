@@ -1,4 +1,5 @@
 const Review = require("../models/Review");
+const Location = require("../models/Location");
 
 exports.createReview = async (req, res) => {
   try {
@@ -69,5 +70,41 @@ exports.updateReview = async (req, res) => {
   } catch (err) {
     console.error("❌ 리뷰 수정 실패:", err);
     res.status(500).json({ error: "리뷰 수정 실패", detail: err.message });
+  }
+};
+
+exports.createReviewAndLinkToLocation = async (req, res) => {
+  try {
+    const content = req.body.content;
+    const userId = req.user._id;
+    const locationId = req.params.locationId;
+
+    // ✅ 리뷰 저장
+    const newReview = new Review({
+      content,
+      author: userId,
+      location: locationId,
+    });
+
+    const savedReview = await newReview.save();
+
+    // Location 문서에 content 자체를 push
+    const updatedLocation = await Location.findByIdAndUpdate(
+      locationId,
+      { $push: { review: content } }, // 🔥 내용 자체 저장
+      { new: true }
+    );
+
+    if (!updatedLocation) {
+      return res.status(404).json({ message: "해당 장소를 찾을 수 없습니다." });
+    }
+
+    res.status(201).json({
+      message: "리뷰 등록 및 장소에 연결 완료",
+      review: savedReview,
+    });
+  } catch (err) {
+    console.error("❌ 리뷰 저장 실패:", err);
+    res.status(500).json({ error: "리뷰 저장 실패", detail: err.message });
   }
 };

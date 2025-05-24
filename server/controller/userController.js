@@ -64,9 +64,15 @@ exports.resetUserKeywords = async (req, res) => {
 
 // 🔹 사용자 키워드 삭제
 exports.deleteUserKeyword = async (req, res) => {
+  console.log("deleteUserKeyword 호출됨");
+  console.log("req.params : ", req.params);
+
   try {
     const { userId, keywordId } = req.params;
     const user = await User.findById(userId);
+    if (!mongoose.Types.ObjectId.isValid(keywordId)) {
+      return res.status(400).json({ error: "유효한 keywordId가 아닙니다." });
+    }
 
     if (!user || !user.keywords.includes(keywordId)) {
       return res
@@ -89,21 +95,32 @@ exports.deleteUserKeyword = async (req, res) => {
 
 // 🔹 사용자 최근 검색어 추가
 exports.addRecentSearch = async (req, res) => {
+  console.log("addRecentSearch 호출됨");
+  console.log("req.params : ", req.params);
+  console.log("req.body  : ", req.body.location.title);
+
   try {
     const { userId } = req.params;
-    const { query } = req.body;
+    const { location } = req.body;
+    const locationId = location?._id;
+
+    if (!locationId || !mongoose.Types.ObjectId.isValid(locationId)) {
+      return res
+        .status(400)
+        .json({ error: "유효한 location._id가 필요합니다." });
+    }
 
     const user = await User.findById(userId);
     if (!user) {
       return res.status(404).json({ error: "사용자를 찾을 수 없습니다." });
     }
 
-    if (!user.recentsearch.includes(query)) {
-      user.recentsearch.unshift(query);
+    if (!user.recentsearch.includes(locationId)) {
+      user.recentsearch.unshift(new mongoose.Types.ObjectId(locationId));
       await user.save();
     }
 
-    res.status(201).json({ message: "최근 검색어 추가 성공", query });
+    res.status(201).json({ message: "최근 장소 추가 성공", locationId });
   } catch (error) {
     res.status(500).json({ error: "서버 오류 발생" });
   }
@@ -111,9 +128,11 @@ exports.addRecentSearch = async (req, res) => {
 
 // 🔹 사용자 최근 검색어 조회
 exports.getRecentSearch = async (req, res) => {
+  console.log("getRecentSearch 호출됨");
+  console.log("req.params: ", req.params);
   try {
     const { userId } = req.params;
-    const user = await User.findById(userId);
+    const user = await User.findById(userId).populate("recentsearch");
 
     if (!user) {
       return res.status(404).json({ error: "사용자를 찾을 수 없습니다." });
@@ -127,6 +146,9 @@ exports.getRecentSearch = async (req, res) => {
 
 // 🔹 사용자 최근 검색어 전체 초기화
 exports.resetRecentSearch = async (req, res) => {
+  console.log("resetRecentSearch 호출됨");
+  console.log("req.params : ", req.params);
+
   try {
     const { userId } = req.params;
     await User.findByIdAndUpdate(
@@ -143,26 +165,31 @@ exports.resetRecentSearch = async (req, res) => {
 
 // 🔹 사용자 최근 검색어 삭제
 exports.deleteRecentSearch = async (req, res) => {
+    console.log("deleteRecentSearch 호출됨");
+  console.log("req.params : ", req.params);
   try {
-    const { userId, recentsearch } = req.params;
-    const user = await User.findById(userId);
+    const { userId, locationId } = req.params;
 
-    if (!user || !user.recentsearch.includes(recentsearch)) {
+    if (!mongoose.Types.ObjectId.isValid(locationId)) {
+      return res.status(400).json({ error: "유효한 locationId가 아닙니다." });
+    }
+
+    const user = await User.findById(userId);
+    if (!user || !user.recentsearch.includes(locationId)) {
       return res
         .status(404)
-        .json({ error: "해당 최근 검색어가 존재하지 않습니다." });
+        .json({ error: "해당 장소가 최근 검색어에 존재하지 않습니다." });
     }
 
     await User.findByIdAndUpdate(
       userId,
-      { $pull: { recentsearch } },
+      { $pull: { recentsearch: new mongoose.Types.ObjectId(locationId) } },
       { new: true }
     );
     await user.save();
 
-    res.json({ message: "최근 검색어 삭제 성공!" });
+    res.json({ message: "최근 장소 삭제 성공!" });
   } catch (error) {
     res.status(500).json({ error: "서버 오류 발생" });
   }
 };
-

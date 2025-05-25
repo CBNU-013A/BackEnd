@@ -10,6 +10,10 @@ const UserSchema = new mongoose.Schema({
   keywords: [{ type: mongoose.Schema.Types.ObjectId, ref: "Keyword" }],
   address: { type: String, required: false },
   birthdate: { type: Date, required: true },
+  likes: {
+    type: [{ type: mongoose.Schema.Types.ObjectId, ref: "Location" }],
+    default: [],
+  },
 });
 
 module.exports = mongoose.model("User", UserSchema);

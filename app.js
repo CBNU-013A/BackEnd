@@ -9,6 +9,8 @@ const userRoutes = require("./server/routes/userRoutes");
 const keywordRoutes = require("./server/routes/keywordsRoutes");
 const locationRoutes = require("./server/routes/locationRoutes");
 const reviewRoutes = require("./server/routes/reviewRoutes");
+const userLikeRoutes = require("./server/routes/userlikeRoutes");
+const locationLikeRoutes = require("./server/routes/locationLikeRoutes");
 const app = express();
 
 app.use(cors());
@@ -20,6 +22,8 @@ app.use("/api/users", userRoutes);
 app.use("/api/keywords", keywordRoutes);
 app.use("/api/location", locationRoutes);
 app.use("/api/review", reviewRoutes);
+app.use("/api/users", userLikeRoutes);
+app.use("/api/location", locationLikeRoutes);
 
 const PORT = process.env.PORT || 8001;
 

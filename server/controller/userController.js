@@ -1,4 +1,4 @@
-require("../models/Category");
+require("../models/Category"); // 이거 안하면 ref 해도 category가 등록 안 되어 있다고 튕김
 const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
 const User = require("../models/User");
@@ -96,33 +96,37 @@ exports.resetUserKeywords = async (req, res) => {
 };
 
 // 🔹 사용자 키워드 삭제
-exports.deleteUserKeyword = async (req, res) => {
-  console.log("deleteUserKeyword 호출됨");
-  console.log("req.params : ", req.params);
+exports.removeUserKeyword = async (req, res) => {
+  const { userId } = req.params;
+  const { subKeywordId } = req.body;
 
   try {
-    const { userId, keywordId } = req.params;
     const user = await User.findById(userId);
-    if (!mongoose.Types.ObjectId.isValid(keywordId)) {
-      return res.status(400).json({ error: "유효한 keywordId가 아닙니다." });
-    }
 
-    if (!user || !user.keywords.includes(keywordId)) {
-      return res
-        .status(404)
-        .json({ error: "해당 키워드가 존재하지 않습니다." });
-    }
+    if (!user) return res.status(404).json({ message: "사용자 없음" });
 
-    await User.findByIdAndUpdate(
-      userId,
-      { $pull: { keywords: keywordId } },
-      { new: true }
+    const keywordItem = user.keywords.find(
+      (kw) => kw.subKeyword.toString() === subKeywordId
     );
+
+    if (!keywordItem) {
+      return res.status(404).json({ message: "해당 키워드 없음" });
+    }
+
+    if (keywordItem.value === 0) {
+      return res.status(200).json({ message: "이미 value가 0입니다" });
+    }
+
+    keywordItem.value = 0;
     await user.save();
 
-    res.json({ message: "키워드 삭제 성공!" });
-  } catch (error) {
-    res.status(500).json({ error: "서버 오류 발생" });
+    res.status(200).json({
+      message: "키워드 value 0으로 초기화 완료",
+      keyword: keywordItem,
+    });
+  } catch (err) {
+    console.error("❌ 키워드 삭제 에러:", err);
+    res.status(500).json({ error: "키워드 삭제 실패" });
   }
 };
 

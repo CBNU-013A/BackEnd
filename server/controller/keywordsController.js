@@ -1,5 +1,6 @@
 // keywordsController.js
-const Keyword = require("../models/Keyword");
+const User = require("../models/User");
+const Keyword = require("../models/SubKeyword");
 
 // ✅ 모든 키워드를 불러오는 함수
 exports.getAllKeywords = async (req, res) => {
@@ -62,5 +63,32 @@ exports.updateKeyword = async (req, res) => {
   } catch (error) {
     console.error("🚨 키워드 수정 오류:", error);
     res.status(500).json({ error: "서버 오류 발생" });
+  }
+};
+
+exports.createOrUpdateUserKeywords = async (req, res) => {
+  const { userId, selectedKeywordIds } = req.body;
+  // selectedKeywordIds는 사용자가 선택한 SubKeyword ID 배열
+
+  try {
+    const allSubKeywords = await SubKeyword.find({});
+
+    const keywordData = allSubKeywords.map((sub) => ({
+      subKeyword: sub._id,
+      value: selectedKeywordIds.includes(sub._id.toString()) ? 1 : 0,
+    }));
+
+    const user = await User.findByIdAndUpdate(
+      userId,
+      { keywords: keywordData },
+      { new: true, upsert: true }
+    );
+
+    res
+      .status(200)
+      .json({ message: "사용자 키워드 저장 성공", keywords: user.keywords });
+  } catch (err) {
+    console.error("❌ 사용자 키워드 저장 실패:", err);
+    res.status(500).json({ message: "서버 오류", error: err.message });
   }
 };

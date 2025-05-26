@@ -1,64 +1,97 @@
+require("../models/Category");
 const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
 const User = require("../models/User");
-const Keyword = require("../models/Keyword");
+const Keyword = require("../models/SubKeyword");
 
 // 🔹 사용자 키워드 추가
-exports.addUserKeyword = async (req, res) => {
+exports.updateUserKeyword = async (req, res) => {
+  const { userId } = req.params;
+  const { subKeywordId } = req.body;
+
   try {
-    const { userId } = req.params;
-    let { keywordId } = req.body;
-
-    if (!mongoose.Types.ObjectId.isValid(keywordId)) {
-      return res.status(400).json({ error: "유효한 keywordId가 아닙니다." });
-    }
-
     const user = await User.findById(userId);
-    if (!user) {
-      return res.status(404).json({ error: "사용자를 찾을 수 없습니다." });
+    if (!user) return res.status(404).json({ message: "사용자 없음" });
+
+    const keywordItem = user.keywords.find(
+      (kw) => kw.subKeyword.toString() === subKeywordId
+    );
+
+    if (!keywordItem) {
+      return res.status(404).json({ message: "해당 키워드 없음" });
     }
 
-    if (user.keywords.includes(keywordId)) {
-      return res.status(409).json({ error: "이미 추가된 키워드입니다." });
-    }
-
-    user.keywords.push(keywordId);
+    keywordItem.value = 1;
     await user.save();
 
-    res.status(201).json({ message: "키워드 추가 성공!", keywordId });
-  } catch (error) {
-    res.status(500).json({ error: "서버 오류 발생" });
+    res
+      .status(200)
+      .json({ message: "키워드 업데이트 완료", keyword: keywordItem });
+  } catch (err) {
+    console.error("❌ 키워드 업데이트 에러:", err);
+    res.status(500).json({ error: "키워드 업데이트 실패" });
   }
 };
 
 // 🔹 사용자 키워드 조회
 exports.getUserKeywords = async (req, res) => {
+  const { userId } = req.params;
+
   try {
-    const user = await User.findById(req.params.userId).populate(
-      "keywords",
-      "name"
-    );
+    const user = await User.findById(userId).populate({
+      path: "keywords.subKeyword",
+      populate: { path: "category" },
+    });
+
     if (!user) {
-      return res.status(404).json({ error: "사용자를 찾을 수 없습니다." });
+      return res.status(404).json({ message: "사용자 없음" });
     }
-    res.json(user.keywords);
-  } catch (error) {
-    res.status(500).json({ error: "서버 오류 발생" });
+
+    const selectedKeywords = user.keywords.filter((kw) => kw.value === 1);
+
+    res.status(200).json({
+      message: "선택된 키워드 조회 성공",
+      keywords: selectedKeywords,
+    });
+  } catch (err) {
+    console.error("❌ 키워드 조회 에러:", err);
+    res.status(500).json({ error: "키워드 조회 실패" });
   }
 };
 
 // 🔹 사용자 키워드 전체 초기화
 exports.resetUserKeywords = async (req, res) => {
+  const { userId } = req.params;
+
   try {
-    const { userId } = req.params;
-    await User.findByIdAndUpdate(
-      userId,
-      { $set: { keywords: [] } },
-      { new: true }
-    );
-    res.json({ message: "모든 키워드 초기화 성공!" });
-  } catch (error) {
-    res.status(500).json({ error: "서버 오류 발생" });
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({ message: "사용자 없음" });
+    }
+
+    let updated = false;
+
+    if (user.keywords && user.keywords.length > 0) {
+      user.keywords.forEach((kw) => {
+        if (kw.value !== 0) {
+          kw.value = 0;
+          updated = true;
+        }
+      });
+    }
+
+    if (updated) {
+      await user.save();
+      return res.status(200).json({ message: "키워드 초기화 완료" });
+    } else {
+      return res
+        .status(200)
+        .json({ message: "초기화할 키워드가 없음 (이미 0)" });
+    }
+  } catch (err) {
+    console.error("❌ 키워드 초기화 에러:", err);
+    res.status(500).json({ error: "키워드 초기화 실패" });
   }
 };
 
@@ -165,7 +198,7 @@ exports.resetRecentSearch = async (req, res) => {
 
 // 🔹 사용자 최근 검색어 삭제
 exports.deleteRecentSearch = async (req, res) => {
-    console.log("deleteRecentSearch 호출됨");
+  console.log("deleteRecentSearch 호출됨");
   console.log("req.params : ", req.params);
   try {
     const { userId, locationId } = req.params;

@@ -7,7 +7,12 @@ const UserSchema = new mongoose.Schema({
   password: { type: String, required: true },
   age: { type: Number, required: false },
   recentsearch: [{ type: mongoose.Schema.Types.ObjectId, ref: "Location" }],
-  keywords: [{ type: mongoose.Schema.Types.ObjectId, ref: "Keyword" }],
+  keywords: [
+    {
+      subKeyword: { type: mongoose.Schema.Types.ObjectId, ref: "SubKeyword" },
+      value: { type: Number, default: 0 }, // 1이면 선택된 키워드
+    },
+  ],
   address: { type: String, required: false },
   birthdate: { type: Date, required: true },
   likes: {
@@ -15,5 +20,17 @@ const UserSchema = new mongoose.Schema({
     default: [],
   },
 });
+
+// // ✅ 신규 유저 저장 전 자동으로 keywords 세팅
+// userSchema.pre("save", async function (next) {
+//   if (!this.keywords || this.keywords.length === 0) {
+//     const allSubKeywords = await SubKeyword.find({});
+//     this.keywords = allSubKeywords.map((sub) => ({
+//       subKeyword: sub._id,
+//       value: 0,
+//     }));
+//   }
+//   next();
+// });
 
 module.exports = mongoose.model("User", UserSchema);

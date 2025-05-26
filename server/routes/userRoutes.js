@@ -4,9 +4,9 @@ const router = express.Router();
 const userController = require("../controller/userController");
 
 // 🔹 사용자 키워드
-router.post("/:userId/keywords", userController.addUserKeyword);
+router.post("/:userId/keywords", userController.updateUserKeyword);
 router.get("/:userId/keywords", userController.getUserKeywords);
-router.delete("/:userId/keywords", userController.resetUserKeywords);
+router.patch("/:userId/keywords", userController.resetUserKeywords);
 router.delete("/:userId/keywords/:keywordId", userController.deleteUserKeyword);
 
 // 🔹 사용자 최근 검색어

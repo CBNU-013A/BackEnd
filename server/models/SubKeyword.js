@@ -3,10 +3,8 @@ const mongoose = require("mongoose");
 
 const sentimentSchema = new mongoose.Schema(
   {
-    none: { type: Number, default: 0 },
     pos: { type: Number, default: 0 },
     neg: { type: Number, default: 0 },
-    total: { type: Number, default: 0 },
   },
   { _id: false }
 );

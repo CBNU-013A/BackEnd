@@ -54,6 +54,38 @@ const keywordData = [
       { name: "야간" },
     ],
   },
+  {
+    category: "주차",
+    items: [],
+  },
+  {
+    category: "화장실",
+    items: [],
+  },
+  {
+    category: "시설관리상태",
+    items: [],
+  },
+  {
+    category: "혼잡",
+    items: [],
+  },
+  {
+    category: "접근성",
+    items: [],
+  },
+  {
+    category: "편의 시설 다양성",
+    items: [],
+  },
+  {
+    category: "가성비",
+    items: [],
+  },
+  {
+    category: "아이/노약자 동반",
+    items: [],
+  },
 ];
 
 async function insertKeywords() {

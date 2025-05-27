@@ -1,6 +1,7 @@
 // keywordsController.js
 const User = require("../models/User");
 const Keyword = require("../models/SubKeyword");
+const Category = require("../models/Category");
 
 // ✅ 모든 키워드를 불러오는 함수
 exports.getAllKeywords = async (req, res) => {
@@ -11,6 +12,15 @@ exports.getAllKeywords = async (req, res) => {
     res.json(keywords);
   } catch (error) {
     console.error("🚨 키워드 조회 오류:", error);
+    res.status(500).json({ error: "서버 오류 발생" });
+  }
+};
+exports.getCategory = async (req, res) => {
+  try {
+    const categories = await Category.find({}, { name: 1 });
+    res.json(categories);
+  } catch (error) {
+    console.error("🚨 카테고리 조회 오류:", error);
     res.status(500).json({ error: "서버 오류 발생" });
   }
 };

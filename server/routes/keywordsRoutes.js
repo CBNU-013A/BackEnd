@@ -5,7 +5,7 @@ const keywordsController = require("../controller/keywordsController"); // 🔥 
 
 // 🔹 모든 키워드 조회
 router.get("/all", keywordsController.getAllKeywords);
-console.log("✅ keywordRoutes 연결됨");
+router.get("/category", keywordsController.getCategory);
 
 // 🔹 키워드 추가
 router.post("/", keywordsController.createKeyword);

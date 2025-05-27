@@ -89,10 +89,22 @@ exports.createReview = async (req, res) => {
         analyzedAt: null
       }
     });
-
     await review.save();
 
-    res.status(201).json({ message: "리뷰 등록 성공", review });
+    // 감성분석 수행
+    const sentiments = await analyzeSentiment(content);
+    // 감성분석 결과가 있다면 Location 키워드 업데이트
+    if (sentiments) {
+      review.sentimentAnalysis = {
+        sentiments: sentiments,
+        analyzedAt: new Date()
+      };
+      await review.save();
+
+      await updateLocationKeywordSentiments(locationId, sentiments);
+      console.log("✅ 리뷰 등록 및 감성분석 완료");
+    }
+    res.status(201).json(review);
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "리뷰 저장 실패" });
@@ -242,5 +254,32 @@ exports.createReviewAndLinkToLocation = async (req, res) => {
   } catch (err) {
     console.error("❌ 리뷰 저장 실패:", err);
     res.status(500).json({ error: "리뷰 저장 실패", detail: err.message });
+  }
+};
+
+exports.getSentimentAnalysis = async (req, res) => {
+  try {
+    const reviewId = req.params.reviewId;
+    const review = await Review.findById(reviewId).select("content sentimentAnalysis");
+
+    if (!review) {
+      return res.status(404).json({ message: "리뷰를 찾을 수 없습니다." });
+    }
+
+    if (!review.sentimentAnalysis || !review.sentimentAnalysis.analyzedAt) {
+      return res.status(404).json({ message: "감성분석이 아직 수행되지 않았습니다." });
+    }
+
+    res.status(200).json({
+      message: "감성분석 결과 조회 성공",
+      data: {
+        content: review.content,
+        sentiments: review.sentimentAnalysis.sentiments,
+        analyzedAt: review.sentimentAnalysis.analyzedAt
+      }
+    });
+  } catch (err) {
+    console.error("❌ 감성분석 결과 조회 실패:", err);
+    res.status(500).json({ error: "감성분석 결과 조회 실패", detail: err.message });
   }
 };

@@ -11,6 +11,10 @@ const ReviewSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "Keyword",
     required: true,
+    sentiment: {
+      pos: { type: Number, default: 0 },
+      neg: { type: Number, default: 0 },
+    },
   },
   //이건 프론트에서 location ID받아야함
   location: {

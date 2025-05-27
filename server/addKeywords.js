@@ -24,6 +24,7 @@ async function insertKeywords() {
     const operations = keywords.map((word) => ({
       updateOne: {
         filter: { name: word },
+        update: { $setOnInsert: { sentiment: { pos: 0, neg: 0 } } },
         upsert: true,
       },
     }));

@@ -7,7 +7,7 @@ exports.getAllKeywords = async (req, res) => {
   try {
     console.log("✅ getAllKeywords 호출됨");
 
-    const keywords = await Keyword.find({}, { name: 1 }); // _id 기본 포함
+    const keywords = await Keyword.find({}, { name: 1, category: 1 }); // _id 기본 포함
     res.json(keywords);
   } catch (error) {
     console.error("🚨 키워드 조회 오류:", error);

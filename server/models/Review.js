@@ -10,7 +10,7 @@ const ReviewSchema = new mongoose.Schema({
   keywords: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Keyword",
-    required: true,
+    required: false,
     sentiment: {
       pos: { type: Number, default: 0 },
       neg: { type: Number, default: 0 },

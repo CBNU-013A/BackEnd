@@ -1,24 +1,56 @@
 const Review = require("../models/Review");
 const Location = require("../models/Location");
+const axios = require("axios");
+const Keyword = require("../models/Keyword");
 
-exports.createReview = async (req, res) => {
+const requestanalyzeReview = async (content) => {
   try {
-    const content = req.body.content;
-    const userId = req.user._id; // ✅ JWT에서 해석된 사용자 ID
-    const locationId = req.params.locationId; // ✅ URL 경로에서 가져옴;
-
-    const review = new Review({
-      content,
-      author: userId,
-      location: locationId,
-    });
-
-    await review.save();
-
-    res.status(201).json({ message: "리뷰 등록 성공", review });
+    console.log("감성 분석 시작:", content);
+    const response = await axios.post(`${process.env.SENTIMENT_API_URL}/api/v1/predict`,
+      {
+        text: content
+      }, {
+        headers: {
+          'nlp-api-key': `${process.env.SENTIMENT_API_KEY}`,
+          'Content-Type': 'application/json'
+        }
+      });
+    console.log("감성 분석 결과:", response.data);
+    return response.data.sentiments;
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "리뷰 저장 실패" });
+    console.error("❌ 리뷰 분석 실패:", err);
+    return null;
+  }
+};
+
+const processSentiments = async (sentiments) => {
+  try {
+    console.log("감성 분석 결과 처리 시작:", sentiments);
+    const keywordArray = [];
+    
+    for (const [keywordName, sentiment] of Object.entries(sentiments)) {
+      const keywordDoc = await Keyword.findOne({ name: keywordName });
+      if (!keywordDoc) {
+        console.log(`키워드를 찾을 수 없음: ${keywordName}`);
+        continue;
+      }
+
+      const sentimentObj = {
+        pos: sentiment === "pos" ? 1 : 0,
+        neg: sentiment === "neg" ? 1 : 0
+      };
+
+      keywordArray.push({
+        keyword: keywordDoc._id,
+        sentiment: sentimentObj
+      });
+    }
+    
+    console.log("처리된 키워드 배열:", keywordArray);
+    return keywordArray;
+  } catch (err) {
+    console.error("❌ 감성 분석 결과 처리 실패:", err);
+    return [];
   }
 };
 
@@ -67,7 +99,7 @@ exports.updateReview = async (req, res) => {
   try {
     const reviewId = req.params.reviewId;
     const userId = req.user._id;
-    const { content, keywords } = req.body;
+    const { content } = req.body;
 
     const review = await Review.findById(reviewId);
     if (!review) {
@@ -78,9 +110,16 @@ exports.updateReview = async (req, res) => {
       return res.status(403).json({ message: "수정 권한이 없습니다." });
     }
 
-    // 수정할 필드만 변경
-    if (content !== undefined) review.content = content;
-    if (keywords !== undefined) review.keywords = keywords;
+    if (content !== undefined) {
+      review.content = content;
+      
+      // 내용이 수정된 경우 감성 분석 다시 수행
+      const sentiments = await requestanalyzeReview(content);
+      if (sentiments) {
+        const keywordArray = await processSentiments(sentiments);
+        review.keywords = keywordArray;
+      }
+    }
 
     await review.save();
 
@@ -91,25 +130,39 @@ exports.updateReview = async (req, res) => {
   }
 };
 
-exports.createReviewAndLinkToLocation = async (req, res) => {
+exports.createReview = async (req, res) => {
   try {
     const content = req.body.content;
     const userId = req.user._id;
     const locationId = req.params.locationId;
 
-    // ✅ 리뷰 저장
+    console.log("리뷰 생성 및 장소 연결 시작 - 내용:", content);
+
+    // 감성 분석 수행
+    const sentiments = await requestanalyzeReview(content);
+    let keywordArray = [];
+    
+    if (sentiments) {
+      console.log("감성 분석 결과 받음:", sentiments);
+      keywordArray = await processSentiments(sentiments);
+    }
+
+    // 리뷰 저장
     const newReview = new Review({
       content,
       author: userId,
       location: locationId,
+      keywords: keywordArray
     });
 
     const savedReview = await newReview.save();
+    console.log("저장된 리뷰:", savedReview);
 
-    // Location 문서에 content 자체를 push
+    // Location 문서에 content string push
+    // TODO: 추후 id로 변경?
     const updatedLocation = await Location.findByIdAndUpdate(
       locationId,
-      { $push: { review: content } }, // 🔥 내용 자체 저장
+      { $push: { review: content } },
       { new: true }
     );
 

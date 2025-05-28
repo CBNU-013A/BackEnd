@@ -9,7 +9,7 @@ const userRoutes = require("./server/routes/userRoutes");
 const keywordRoutes = require("./server/routes/keywordsRoutes");
 const locationRoutes = require("./server/routes/locationRoutes");
 const reviewRoutes = require("./server/routes/reviewRoutes");
-const userLikeRoutes = require("./server/routes/userlikeRoutes");
+const userLikeRoutes = require("./server/routes/userLikeRoutes");
 const locationLikeRoutes = require("./server/routes/locationLikeRoutes");
 const app = express();
 

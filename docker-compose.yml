@@ -9,6 +9,8 @@ services:
       MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
     volumes:
       - mongodb_data:/data/db
+    networks:
+      - pik-network
 
   app:
     build: 
@@ -21,6 +23,34 @@ services:
       - mongodb
     environment:
       MONGO_URI: mongodb+srv://${MONGO_INITDB_ROOT_USERNAME}:${MONGO_INITDB_ROOT_PASSWORD}@${MONGO_CLUSTER}t/${MONGO_DB}?retryWrites=true&w=majority
+    networks:
+      - pik-network
+
+  pik-nlp:
+    image: huseongyoon/piknlp-server:v1.0
+    container_name: pik-nlp
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              capabilities: [gpu]
+    ports:
+      - "14500:18000"
+    environment:
+      - HOST=0.0.0.0
+      - PORT=18000
+      - WORKERS=4
+      - DEVICE=${DEVICE:-cpu}  # 'cuda' 또는 'cpu'
+      - API_KEY=${NLP_API_KEY}
+      - ENV=${NLP_ENV}
+    command: poetry run uvicorn app.main:app --host 0.0.0.0 --port 18000 --workers 4
+    networks:
+      - pik-network
 
 volumes:
   mongodb_data:
+
+networks:
+  pik-network:
+    driver: bridge

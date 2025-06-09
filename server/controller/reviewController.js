@@ -6,15 +6,18 @@ const Keyword = require("../models/Keyword");
 const requestanalyzeReview = async (content) => {
   try {
     console.log("감성 분석 시작:", content);
-    const response = await axios.post(`${process.env.SENTIMENT_API_URL}/api/v1/predict`,
+    const response = await axios.post(
+      `${process.env.SENTIMENT_API_URL}/api/v1/predict`,
       {
-        text: content
-      }, {
+        text: content,
+      },
+      {
         headers: {
-          'nlp-api-key': `${process.env.SENTIMENT_API_KEY}`,
-          'Content-Type': 'application/json'
-        }
-      });
+          "nlp-api-key": `${process.env.SENTIMENT_API_KEY}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
     console.log("감성 분석 결과:", response.data);
     return response.data.sentiments;
   } catch (err) {
@@ -27,7 +30,7 @@ const processSentiments = async (sentiments) => {
   try {
     console.log("감성 분석 결과 처리 시작:", sentiments);
     const keywordArray = [];
-    
+
     for (const [keywordName, sentiment] of Object.entries(sentiments)) {
       const keywordDoc = await Keyword.findOne({ name: keywordName });
       if (!keywordDoc) {
@@ -37,15 +40,15 @@ const processSentiments = async (sentiments) => {
 
       const sentimentObj = {
         pos: sentiment === "pos" ? 1 : 0,
-        neg: sentiment === "neg" ? 1 : 0
+        neg: sentiment === "neg" ? 1 : 0,
       };
 
       keywordArray.push({
         keyword: keywordDoc._id,
-        sentiment: sentimentObj
+        sentiment: sentimentObj,
       });
     }
-    
+
     console.log("처리된 키워드 배열:", keywordArray);
     return keywordArray;
   } catch (err) {
@@ -112,7 +115,7 @@ exports.updateReview = async (req, res) => {
 
     if (content !== undefined) {
       review.content = content;
-      
+
       // 내용이 수정된 경우 감성 분석 다시 수행
       const sentiments = await requestanalyzeReview(content);
       if (sentiments) {
@@ -141,7 +144,7 @@ exports.createReview = async (req, res) => {
     // 감성 분석 수행
     const sentiments = await requestanalyzeReview(content);
     let keywordArray = [];
-    
+
     if (sentiments) {
       console.log("감성 분석 결과 받음:", sentiments);
       keywordArray = await processSentiments(sentiments);
@@ -152,7 +155,7 @@ exports.createReview = async (req, res) => {
       content,
       author: userId,
       location: locationId,
-      keywords: keywordArray
+      keywords: keywordArray,
     });
 
     const savedReview = await newReview.save();
@@ -177,5 +180,29 @@ exports.createReview = async (req, res) => {
   } catch (err) {
     console.error("❌ 리뷰 저장 실패:", err);
     res.status(500).json({ error: "리뷰 저장 실패", detail: err.message });
+  }
+};
+
+// 사용자 작성 리뷰 전체 조회
+exports.getReviewsByUser = async (req, res) => {
+  try {
+    const userId = req.params.userId;
+
+    // 작성자 기준으로 모든 리뷰 불러오기
+    // 필요에 따라 location, keywords 등 populate
+    const reviews = await Review.find({ author: userId })
+      .select("content location createdAt keywords")
+      .populate("location", "title address") // 장소 정보
+      .populate("keywords.keyword", "name"); // 감성 키워드 이름
+
+    res.status(200).json({
+      message: "사용자 작성 리뷰 목록 조회 성공",
+      reviews,
+    });
+  } catch (err) {
+    console.error("❌ 사용자 리뷰 조회 실패:", err);
+    res
+      .status(500)
+      .json({ error: "사용자 리뷰 조회 실패", detail: err.message });
   }
 };

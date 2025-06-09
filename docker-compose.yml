@@ -27,7 +27,7 @@ services:
       - pik-network
 
   pik-nlp:
-    image: huseongyoon/piknlp-server:v1.0
+    image: huseongyoon/piknlp-server:v1.2.6
     container_name: pik-nlp
     deploy:
       resources:

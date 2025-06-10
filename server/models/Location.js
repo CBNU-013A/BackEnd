@@ -9,12 +9,34 @@ const keywordStatSchema = new mongoose.Schema(
     },
     positive: { type: Number, default: 0 },
     negative: { type: Number, default: 0 },
+    frequency: { type: Number, default: 0 },
   },
   { _id: false }
 );
 
 const LocationSchema = new mongoose.Schema({
   title: { type: String, required: true }, // 여행지 이름
+  aggregatedAnalysis: {
+    sentiments: {
+      주차: { pos: Number, neg: Number, none: Number },
+      화장실: { pos: Number, neg: Number, none: Number },
+      활동: { pos: Number, neg: Number, none: Number },
+      시설관리: { pos: Number, neg: Number, none: Number },
+      혼잡도: { pos: Number, neg: Number, none: Number },
+      접근성: { pos: Number, neg: Number, none: Number },
+      편의시설: { pos: Number, neg: Number, none: Number },
+      가성비: { pos: Number, neg: Number, none: Number },
+      아이동반: { pos: Number, neg: Number, none: Number },
+      노약자동반: { pos: Number, neg: Number, none: Number },
+      장소: { pos: Number, neg: Number, none: Number },
+    },
+    categories: {
+      계절: String,
+      동반: String,
+      장소: String,
+      활동: String,
+    },
+  },
   image: [{ type: String }],
   tel: { type: String },
   keywords: [keywordStatSchema],

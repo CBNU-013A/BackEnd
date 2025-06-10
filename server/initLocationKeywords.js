@@ -1,44 +1,39 @@
 const mongoose = require("mongoose");
 const Location = require("./models/Location");
-const SubKeyword = require("./models/SubKeyword");
 const connectDB = require("./database");
 
 mongoose.set("strictQuery", false);
 
-async function ensureKeywordsField() {
-  try {
-    await connectDB();
+async function patchKeywordsFrequency() {
+  await connectDB();
 
-    const subKeywords = await SubKeyword.find({});
-    const keywordTemplate = subKeywords.map((sub) => ({
-      subKeyword: sub._id,
-      positive: 0,
-      negative: 0,
-    }));
+  const locations = await Location.find({ "keywords.0": { $exists: true } });
 
-    // keywords 필드가 없거나 비어 있는 문서만 찾음
-    const locations = await Location.find({
-      $or: [
-        { keywords: { $exists: false } },
-        { keywords: { $size: 0 } },
-        { "keywords.0.positive": { $exists: false } },
-      ],
+  let updatedCount = 0;
+
+  for (const location of locations) {
+    let changed = false;
+
+    // keywords 배열을 완전히 새로 만듦
+    const updatedKeywords = location.keywords.map((kw) => {
+      const kwObj = kw.toObject(); // 🔍 평범한 JS 객체로 변환
+      if (kwObj.frequency === undefined) {
+        kwObj.frequency = 0;
+        changed = true;
+      }
+      return kwObj;
     });
 
-    console.log(`🛠 업데이트할 문서 수: ${locations.length}`);
-
-    for (const location of locations) {
-      location.keywords = keywordTemplate; // keywords 필드 생성 및 추가
+    if (changed) {
+      location.set("keywords", updatedKeywords); // 🔥 전체 교체 (set으로!)
       await location.save();
-      console.log(`✅ '${location.title}' → keywords 필드 추가 완료`);
+      updatedCount++;
+      console.log(`✅ '${location.title}' → frequency 필드 추가됨`);
     }
-
-    console.log("🎉 모든 누락 문서에 keywords 필드 추가 및 초기화 완료");
-    process.exit();
-  } catch (err) {
-    console.error("❌ 처리 중 에러 발생:", err);
-    process.exit(1);
   }
+
+  console.log(`🎯 총 업데이트된 문서 수: ${updatedCount}`);
+  process.exit();
 }
 
-ensureKeywordsField();
+patchKeywordsFrequency();

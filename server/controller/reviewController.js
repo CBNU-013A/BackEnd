@@ -2,6 +2,7 @@ const Review = require("../models/Review");
 const Location = require("../models/Location");
 const axios = require("axios");
 const Keyword = require("../models/Keyword");
+const { recomputeLocationAnalysis } = require("../utils/locationAnalysis");
 
 const requestanalyzeReview = async (content) => {
   /* 감성 분석 요청 */
@@ -19,7 +20,7 @@ const requestanalyzeReview = async (content) => {
         },
       }
     );
-    console.log("감성 분석 결과:", response.data);
+    console.log("감성 분석 결과:", response);
     return response.data.sentiments;
   } catch (err) {
     console.error("❌ 리뷰 분석 실패:", err);
@@ -103,6 +104,7 @@ exports.deleteReview = async (req, res) => {
     console.error(err);
     res.status(500).json({ error: "리뷰 삭제 실패" });
   }
+  await recomputeLocationAnalysis(review.location);
 };
 
 exports.updateReview = async (req, res) => {
@@ -148,6 +150,7 @@ exports.updateReview = async (req, res) => {
     console.error("❌ 리뷰 수정 실패:", err);
     res.status(500).json({ error: "리뷰 수정 실패", detail: err.message });
   }
+  await recomputeLocationAnalysis(review.location);
 };
 
 exports.createReview = async (req, res) => {
@@ -199,6 +202,7 @@ exports.createReview = async (req, res) => {
     console.error("❌ 리뷰 저장 실패:", err);
     res.status(500).json({ error: "리뷰 저장 실패", detail: err.message });
   }
+  await recomputeLocationAnalysis(locationId);
 };
 
 // 사용자 작성 리뷰 전체 조회
@@ -224,3 +228,37 @@ exports.getReviewsByUser = async (req, res) => {
       .json({ error: "사용자 리뷰 조회 실패", detail: err.message });
   }
 };
+
+/**
+ * 저장 전용이 아닌, 텍스트만 주면 감성분석+후처리 결과를 바로 리턴
+ */
+exports.analyzeReview = async (req, res) => {
+  try {
+    const { content } = req.body;
+    if (!content) {
+      return res.status(400).json({ message: "content를 보내주세요." });
+    }
+
+    // 1) 감성 분석
+    const sentiments = await requestanalyzeReview(content);
+    if (!sentiments) {
+      return res.status(500).json({ message: "감성 분석 요청 실패" });
+    }
+
+    // 2) 후처리 (Keyword ID 매핑 + pos/neg 숫자 변환)
+    const keywordArray = await processSentiments(sentiments);
+
+    // 3) 결과 리턴
+    res.status(200).json({
+      message: "감성 분석 및 키워드 처리 완료",
+      rawSentiments: sentiments,
+      processed: keywordArray,
+    });
+  } catch (err) {
+    console.error("❌ analyzeReview 실패:", err);
+    res.status(500).json({ error: "analyzeReview 실패", detail: err.message });
+  }
+};
+
+exports.requestanalyzeReview = requestanalyzeReview;
+exports.processSentiments = processSentiments;

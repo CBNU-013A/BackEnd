@@ -2,12 +2,7 @@
 const Review = require("../models/Review");
 const Location = require("../models/Location");
 
-const DEFAULT_SENT = {
-  pos: 0,
-  neg: 0,
-  none: 0,
-};
-
+// 집계할 키워드 목록 (모델에 저장된 name과 정확히 일치해야 합니다)
 const KEYWORDS = [
   "주차",
   "화장실",
@@ -23,69 +18,72 @@ const KEYWORDS = [
 ];
 const CAT_KEYS = ["계절", "동반", "장소", "활동"];
 
+const DEFAULT_SENT = { pos: 0, neg: 0, none: 0 };
+
 /**
- * locationId에 속한 모든 리뷰를 다시 읽어
- * sentiments 별로 pos/neg/none 개수를 세고,
- * categories 는 가장 많이 등장한 값을 택해 저장
+ * 특정 locationId 에 속한 모든 리뷰를 다시 읽어와
+ * - keywords.keyword 를 populate 해서 name 가져오기
+ * - sentiment 별로 pos/neg/none 카운트
+ * - 리뷰.categories 필드가 있다면 최빈값 집계
  */
 async function recomputeLocationAnalysis(locationId) {
-  // 1) 해당 location 리뷰 전부 조회
+  // 1) 리뷰 불러오기 (keywords.keyword.name 을 읽기 위해 populate)
   const reviews = await Review.find({ location: locationId })
-    .select("keywords categories") // 생성 시에 categories도 저장해두셨다면
+    .populate("keywords.keyword", "name")
+    .select("keywords categories")
     .lean();
 
-  // 2) sentiment 집계 초기화
+  // 2) 초기화
   const sentimentAgg = {};
   KEYWORDS.forEach((k) => {
     sentimentAgg[k] = { ...DEFAULT_SENT };
   });
 
-  // 3) 카테고리별 등장 횟수 카운터
   const categoryCounts = {};
   CAT_KEYS.forEach((c) => {
     categoryCounts[c] = {};
   });
 
-  // 4) 모든 리뷰 순회하며 집계
+  // 3) 리뷰 순회
   for (const r of reviews) {
-    // — sentiments: Review.keywords 배열을 가정
-    if (r.keywords) {
-      r.keywords.forEach((kwObj) => {
-        const name = kwObj.keywordName || kwObj.keyword;
-        const { pos, neg } = kwObj.sentiment;
-        if (name && sentimentAgg[name]) {
-          if (pos) sentimentAgg[name].pos++;
-          else if (neg) sentimentAgg[name].neg++;
-          else sentimentAgg[name].none++;
-        }
-      });
+    // ▶ 키워드 집계
+    if (Array.isArray(r.keywords)) {
+      for (const { keyword, sentiment } of r.keywords) {
+        if (!keyword || !keyword.name) continue;
+        const name = keyword.name;
+        if (!sentimentAgg[name]) continue;
+        if (sentiment.pos) sentimentAgg[name].pos++;
+        else if (sentiment.neg) sentimentAgg[name].neg++;
+        else sentimentAgg[name].none++;
+      }
     }
-    // — categories: Review.categories 객체를 가정
+
+    // ▶ 카테고리 집계 (리뷰에 categories 필드가 저장돼 있을 때)
     if (r.categories) {
-      CAT_KEYS.forEach((cKey) => {
-        const val = r.categories[cKey];
-        if (!val) return;
-        categoryCounts[cKey][val] = (categoryCounts[cKey][val] || 0) + 1;
-      });
+      for (const catKey of CAT_KEYS) {
+        const val = r.categories[catKey];
+        if (!val) continue;
+        categoryCounts[catKey][val] = (categoryCounts[catKey][val] || 0) + 1;
+      }
     }
   }
 
-  // 5) categories는 가장 많이 나온 값을 선택
+  // 4) 카테고리 최빈값 선택
   const categoryAgg = {};
   CAT_KEYS.forEach((cKey) => {
     const counts = categoryCounts[cKey];
     let max = 0,
-      pick = null;
+      pick = "none";
     for (const [val, cnt] of Object.entries(counts)) {
       if (cnt > max) {
         max = cnt;
         pick = val;
       }
     }
-    categoryAgg[cKey] = pick || "none";
+    categoryAgg[cKey] = pick;
   });
 
-  // 6) Location 문서 업데이트
+  // 5) Location 업데이트
   await Location.findByIdAndUpdate(locationId, {
     aggregatedAnalysis: {
       sentiments: sentimentAgg,

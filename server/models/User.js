@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const { Schema } = mongoose;
 
 const UserSchema = new mongoose.Schema({
   id: String,
@@ -19,6 +20,20 @@ const UserSchema = new mongoose.Schema({
     type: [{ type: mongoose.Schema.Types.ObjectId, ref: "Location" }],
     default: [],
   },
+  // 사용자가 고른 소분류 카테고리 ID 배열
+  preferences: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "SubKeyword",
+    },
+  ],
+  // (2) 감성분석 키워드(Keyword) 선택 저장 필드
+  keywordPreferences: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "Keyword",
+    },
+  ],
 });
 
 // // ✅ 신규 유저 저장 전 자동으로 keywords 세팅

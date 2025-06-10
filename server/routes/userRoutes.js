@@ -18,4 +18,17 @@ router.delete(
   userController.deleteRecentSearch
 );
 
+// 사용자 선호 저장
+router.post("/:userId/preferences", userController.setPreferences);
+
+// ⭐️ 새로 추가: 감성 키워드 선호
+router.post(
+  "/:userId/keyword-preferences",
+  userController.setKeywordPreferences
+);
+router.get(
+  "/:userId/keyword-preferences",
+  userController.getKeywordPreferences
+);
+
 module.exports = router;

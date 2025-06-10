@@ -4,7 +4,7 @@ services:
     container_name: mongodb
     ports:
       - "27018:27017" #호스트 : 도커 컨테이너 안 몽고디비
-    environment: 
+    environment:
       MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
       MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
     volumes:
@@ -13,7 +13,7 @@ services:
       - pik-network
 
   app:
-    build: 
+    build:
       context: .
       dockerfile: Dockerfile
     container_name: app-container
@@ -27,21 +27,21 @@ services:
       - pik-network
 
   pik-nlp:
-    image: huseongyoon/piknlp-server:v1.2.6
+    image: huseongyoon/piknlp-server:v1.3.0
     container_name: pik-nlp
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              capabilities: [gpu]
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           capabilities: [gpu]
     ports:
       - "14500:18000"
     environment:
       - HOST=0.0.0.0
       - PORT=18000
       - WORKERS=4
-      - DEVICE=${DEVICE:-cpu}  # 'cuda' 또는 'cpu'
+      - DEVICE=${DEVICE:-cpu} # 'cuda' 또는 'cpu'
       - API_KEY=${NLP_API_KEY}
       - ENV=${NLP_ENV}
     command: poetry run uvicorn app.main:app --host 0.0.0.0 --port 18000 --workers 4

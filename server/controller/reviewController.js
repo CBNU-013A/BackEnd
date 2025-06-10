@@ -8,6 +8,7 @@ const requestanalyzeReview = async (content) => {
   /* 감성 분석 요청 */
   try {
     console.log("감성 분석 시작:", content);
+    console.log("SENTIMENT_API_URL =", process.env.SENTIMENT_API_URL);
     const response = await axios.post(
       `${process.env.SENTIMENT_API_URL}/api/v1/predict`,
       {
@@ -111,7 +112,7 @@ exports.updateReview = async (req, res) => {
   try {
     const reviewId = req.params.reviewId;
     const userId = req.user._id;
-    const content = req.body.content;
+    const { content, categories } = req.body;
 
     const review = await Review.findById(reviewId);
     if (!review) {
@@ -130,6 +131,7 @@ exports.updateReview = async (req, res) => {
     let keywordArray = [];
     keywordArray = await processSentiments(sentiments);
     review.content = content;
+    review.categories = categories;
     review.keywords = keywordArray;
     await review.save();
 
@@ -155,7 +157,7 @@ exports.updateReview = async (req, res) => {
 
 exports.createReview = async (req, res) => {
   try {
-    const content = req.body.content;
+    const { content, categories } = req.body;
     const userId = req.user._id;
     const locationId = req.params.locationId;
 
@@ -177,6 +179,7 @@ exports.createReview = async (req, res) => {
       author: userId,
       location: locationId,
       keywords: keywordArray,
+      categories,
     });
 
     const savedReview = await newReview.save();

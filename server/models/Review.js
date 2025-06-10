@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const { Schema } = mongoose;
 
 const ReviewSchema = new mongoose.Schema({
   content: { type: String, required: true }, // 텍스트 리뷰
@@ -25,6 +26,7 @@ const ReviewSchema = new mongoose.Schema({
     ref: "Location",
     required: true,
   },
+  categories: [{ type: Schema.Types.ObjectId, ref: "SubKeyword" }],
   createdAt: { type: Date, default: Date.now },
 });
 

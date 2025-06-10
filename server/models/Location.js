@@ -1,4 +1,14 @@
 const mongoose = require("mongoose");
+const { Schema } = mongoose;
+
+const SentimentCountSchema = new Schema(
+  {
+    pos: { type: Number, default: 0 },
+    neg: { type: Number, default: 0 },
+    none: { type: Number, default: 0 },
+  },
+  { _id: false }
+);
 
 const keywordStatSchema = new mongoose.Schema(
   {
@@ -17,24 +27,17 @@ const keywordStatSchema = new mongoose.Schema(
 const LocationSchema = new mongoose.Schema({
   title: { type: String, required: true }, // 여행지 이름
   aggregatedAnalysis: {
+    // 기능성 키워드 감성 집계 (예: 주차·화장실… 총 11개)
     sentiments: {
-      주차: { pos: Number, neg: Number, none: Number },
-      화장실: { pos: Number, neg: Number, none: Number },
-      활동: { pos: Number, neg: Number, none: Number },
-      시설관리: { pos: Number, neg: Number, none: Number },
-      혼잡도: { pos: Number, neg: Number, none: Number },
-      접근성: { pos: Number, neg: Number, none: Number },
-      편의시설: { pos: Number, neg: Number, none: Number },
-      가성비: { pos: Number, neg: Number, none: Number },
-      아이동반: { pos: Number, neg: Number, none: Number },
-      노약자동반: { pos: Number, neg: Number, none: Number },
-      장소: { pos: Number, neg: Number, none: Number },
+      type: Map,
+      of: SentimentCountSchema,
+      default: {},
     },
+    // 소분류(SubKeyword) 빈도 벡터 — 21차원
     categories: {
-      계절: String,
-      동반: String,
-      장소: String,
-      활동: String,
+      type: Map,
+      of: Number,
+      default: {},
     },
   },
   image: [{ type: String }],

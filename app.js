@@ -13,6 +13,7 @@ const userLikeRoutes = require("./server/routes/userLikeRoutes");
 const locationLikeRoutes = require("./server/routes/locationLikeRoutes");
 const categoryRoutes = require("./server/routes/categoryRoutes");
 const featureRoutes = require("./server/routes/featureRoutes");
+const recommendRoutes = require("./server/routes/recommendRoutes");
 const app = express();
 
 app.use(cors());
@@ -28,6 +29,7 @@ app.use("/api/users", userLikeRoutes);
 app.use("/api/location", locationLikeRoutes);
 app.use("/api/categories", categoryRoutes);
 app.use("/api/features", featureRoutes);
+app.use("/api/recommend", recommendRoutes);
 const PORT = process.env.PORT || 8001;
 
 // MongoDB 연결

@@ -8,7 +8,7 @@ const ctrl = require("../controller/categoryController");
 router.get("/", ctrl.listCategories);
 
 // 2) 대분류 ID로 소분류 조회
-//    GET /api/categories/:categoryId/subcategories
+//    GET /api/categories/:categoryId/subkeywords
 router.get("/:categoryId/subkeywords", ctrl.listSubcategories);
 
 // 3) 사용자 선택한 소분류 4개 한 번에 POST

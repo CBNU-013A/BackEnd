@@ -230,3 +230,67 @@ exports.deleteRecentSearch = async (req, res) => {
     res.status(500).json({ error: "서버 오류 발생" });
   }
 };
+
+/**
+ * POST /api/users/:userId/preferences
+ * body: { preferences: [ subKeyId1, subKeyId2, ... ] }
+ */
+exports.setPreferences = async (req, res) => {
+  const { userId } = req.params;
+  const { preferences } = req.body;
+  if (!Array.isArray(preferences) || preferences.length === 0) {
+    return res.status(400).json({ message: "preferences 배열을 보내주세요." });
+  }
+  await User.findByIdAndUpdate(userId, { preferences }, { new: true });
+  res.json({ message: "Preferences 저장 완료", preferences });
+};
+
+/**
+ * POST /api/users/:userId/keyword-preferences
+ * body: { keywordPreferences: [ keywordId1, keywordId2, ... ] }
+ */
+exports.setKeywordPreferences = async (req, res) => {
+  const { userId } = req.params;
+  const { keywordPreferences } = req.body;
+
+  if (!Array.isArray(keywordPreferences)) {
+    return res
+      .status(400)
+      .json({ message: "keywordPreferences 는 배열이어야 합니다." });
+  }
+
+  // (필요시 유효한 Keyword ID인지 검증해도 좋습니다)
+  const user = await User.findByIdAndUpdate(
+    userId,
+    { keywordPreferences },
+    { new: true }
+  ).populate("keywordPreferences", "name");
+
+  if (!user) {
+    return res.status(404).json({ message: "사용자를 찾을 수 없습니다." });
+  }
+
+  res.json({
+    message: "감성 키워드 선호 저장 완료",
+    keywordPreferences: user.keywordPreferences,
+  });
+};
+
+/**
+ * GET /api/users/:userId/keyword-preferences
+ */
+exports.getKeywordPreferences = async (req, res) => {
+  const { userId } = req.params;
+  const user = await User.findById(userId)
+    .select("keywordPreferences")
+    .populate("keywordPreferences", "name")
+    .lean();
+
+  if (!user) {
+    return res.status(404).json({ message: "사용자를 찾을 수 없습니다." });
+  }
+
+  res.json({
+    keywordPreferences: user.keywordPreferences,
+  });
+};

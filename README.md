@@ -23,10 +23,13 @@ Back-End/
     ├── addLocation.js          # DB에 장소 데이터를 추가하는 스크립트
     ├── controller/             # 요청을 처리하는 컨트롤러 모듈 디렉토리
     │   ├── authController.js       # 사용자 인증 관련 로직
+    │   ├── categoryController.js   # 컨텐츠 항목 관련 로직
+    │   ├── featureController.js    # 편의성 항목 관련 로직
     │   ├── keywordsController.js   # 키워드 관련 API 로직
-    │   ├── locationController.js   # 장소 관련 API 로직
-    │   ├── reviewController.js     # 리뷰 관련 API 로직
     │   ├── likeController.js       # 즐겨찬기 관련 API 로직
+    │   ├── locationController.js   # 장소 관련 API 로직
+    │   ├── recommendController.js  # 즐겨찾기 관련 API 로직
+    │   ├── reviewController.js     # 추천천 관련 API 로직
     │   └── userController.js       # 사용자 정보 관련 API 로직
     ├── database.js             # MongoDB 연결 설정 파일
     ├── json/                   # 초기 데이터 파일(json) 디렉토리
@@ -43,9 +46,12 @@ Back-End/
     │   └── User.js                 # 사용자 모델
     ├── routes/                 # API 라우터 정의 디렉토리
     │   ├── authRoutes.js           # 사용자 인증 라우트
+    │   ├── categoryRoutes.js       # 대분류 카테고리 라우트
+    │   ├── featureRoutes.js        # 편의성 항목 관련 라우트
     │   ├── keywordsRoutes.js       # 키워드 관련 라우트
     │   ├── locationLikeRoutes.js   # 장소 즐겨찾기 관련 라우트
     │   ├── locationRoutes.js       # 장소 관련 라우트
+    │   ├── recommendRoutes.js      # 추천 관련 라우트
     │   ├── reviewRoutes.js         # 리뷰 관련 라우트
     │   ├── userLikeRoutes.js       # 사용자 즐겨찾기기 관련 라우트
     │   └── userRoutes.js           # 사용자 정보 관련 라우트

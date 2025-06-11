@@ -53,7 +53,7 @@ exports.recommendByUser = async (req, res) => {
 
   // 4) 정렬 & 상위 5개
   scores.sort((a, b) => b.score - a.score);
-  const top5 = scores.slice(0, 5);
+  const top5 = scores.slice(0, 10);
 
   // 5) 응답
   res.json({

@@ -82,11 +82,14 @@ function normalizeCategories(nlpCategories) {
       out.push([categoryName, tagName]);
     }
   } else if (nlpCategories && typeof nlpCategories === "object") {
-    for (const [categoryName, tags] of Object.entries(nlpCategories)) {
-      if (!Array.isArray(tags)) continue;
-      for (const tagName of tags) {
-        if (!tagName) continue;
-        out.push([categoryName, tagName]);
+    for (const [categoryName, value] of Object.entries(nlpCategories)) {
+      if (Array.isArray(value)) {
+        for (const tagName of value) {
+          if (!tagName) continue;
+          out.push([categoryName, tagName]);
+        }
+      } else if (typeof value === "string") {
+        if (value) out.push([categoryName, value]);
       }
     }
   }
@@ -133,7 +136,10 @@ async function main() {
       if (!nlp) continue;
       const sentimentAspects = await mapSentiments(nlp.sentiments);
       const categories = await mapCategories(nlp.categories);
-      await Review.updateOne({ _id: r._id }, { $set: { sentimentAspects, categories } });
+      await Review.updateOne(
+        { _id: r._id },
+        { $set: { sentimentAspects, categories }, $unset: { keywords: "" } }
+      );
       if (doAggregate && r.location) {
         await recomputeLocationAnalysis(r.location);
       }

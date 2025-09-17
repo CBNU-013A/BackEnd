@@ -6,6 +6,7 @@ const Review = require("../models/Review");
 const Location = require("../models/Location");
 const SentimentAspect = require("../models/SentimentAspect");
 const { recomputeLocationAnalysis } = require("../utils/locationAnalysis");
+const { requestLocationSummary, shouldTriggerSummary } = require("../services/locationSummary");
 
 
 // ----Sentiment Analysis----
@@ -193,6 +194,8 @@ exports.createReview = async (req, res) => {
     });
 
     const savedReview = await newReview.save();
+    // reviewCount 증가 (원자적 증가)
+    await Location.updateOne({ _id: locationId }, { $inc: { reviewCount: 1 } });
     console.log("저장된 리뷰:", savedReview);
 
     // Location 문서에 content string push
@@ -206,6 +209,14 @@ exports.createReview = async (req, res) => {
     if (!updatedLocation) {
       return res.status(404).json({ message: "해당 장소를 찾을 수 없습니다." });
     }
+
+    // 요약 비동기 트리거(30개마다 + 일주일 간격)
+    try {
+      const loc = await Location.findById(locationId).select("reviewCount lastSummaryAt");
+      if (shouldTriggerSummary(loc)) {
+        requestLocationSummary(locationId).catch(() => {});
+      }
+    } catch (_) {}
 
     res.status(201).json({
       message: "리뷰 등록 및 장소에 연결 완료",

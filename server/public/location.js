@@ -11,3 +11,4 @@ const ALL_CHUNGBUK_CITIES = [
     "영동",
     "증평",
   ];
+module.exports = { ALL_CHUNGBUK_CITIES };

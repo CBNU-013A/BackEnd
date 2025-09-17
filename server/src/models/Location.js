@@ -24,6 +24,11 @@ const categoryCountSchema = new Schema(
 const LocationSchema = new mongoose.Schema(
   {
     title: { type: String, required: true }, // 여행지 이름
+    review: [{ type: String }], // 리뷰
+    likes: { type: Number, default: 0 }, // 좋아요
+    reviewCount: { type: Number, default: 0 },
+    lastSummaryAt: { type: Date },
+    // 분석 집계 결과
     aggregatedAnalysis: {
       sentimentAspects: {
         type: Map,
@@ -36,12 +41,10 @@ const LocationSchema = new mongoose.Schema(
         default: {},
       },
     },
-    image: [{ type: String }],
-    tel: { type: String },
-    review: [{ type: String }], // 리뷰
-    likes: { type: Number, default: 0 }, // 좋아요
     
     // ─────────────── TourAPI ───────────────
+    image: [{ type: String }],  // 이거 쓰는지 모르겠음
+    tel: { type: String },
     contentid: { type: String },
     contenttypeid: { type: String },
     homepage: { type: String },

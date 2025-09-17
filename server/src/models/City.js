@@ -9,4 +9,5 @@ const CitySchema = new mongoose.Schema({
     updatedAt: { type: Date, default: Date.now },
 });
 
-module.exports = mongoose.model("City", CitySchema);
+module.exports = 
+    mongoose.models.City || mongoose.model("City", CitySchema);

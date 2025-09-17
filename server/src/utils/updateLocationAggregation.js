@@ -1,49 +1,48 @@
 // utils/updateLocationAggregation.js
 const Review   = require("../models/Review");
 const Location = require("../models/Location");
-const SubKey   = require("../models/PreferenceTag");
 
 /**
- * 한 Location에 속한 모든 리뷰를 스캔해서
- * - aggregatedAnalysis.sentiments: 감성 키워드별 긍정 리뷰 개수
- * - aggregatedAnalysis.categories: subcategory ID별 리뷰 개수
+ * 새 스키마 기준 간소 집계기
+ * - sentimentAspects[].sentiment의 pos/neg/none 단순 합산 (aspect 이름 없이 총계)
+ * - categories[]의 value.tag 별 count 합산 → Location.aggregatedAnalysis.categories에 반영
  */
 async function recomputeLocationAnalysis(locationId) {
-  // 1) 모든 리뷰 불러오기
   const reviews = await Review.find({ location: locationId })
-    .select("keywords categories")
+    .select("sentimentAspects categories")
     .lean();
 
-  // 2) 기능성 감성 키워드 집계 초기화
-  const sentimentCounts = {};      // ex: { "주차":0, "화장실":0, … }
-  // 키워드 문서에서 목록을 가져오든, 하드코딩하든 상관없습니다.
-  const sentiKeys = Object.keys(reviews[0]?.keywords?.reduce((acc,r)=>acc,{}) || {}); 
-  // 간단히 첫 리뷰에서 키만 뽑아 예시
-  sentiKeys.forEach(k => sentimentCounts[k] = 0);
+  const sentimentTotals = { pos: 0, neg: 0, none: 0 };
+  const tagCounts = {}; // { [tagId]: { category, value:{ tag, count } } }
 
-  // 3) subcategory ID 리스트(21차원) 뽑아 초기화
-  const allSubs = await SubKey.find().select("_id").lean();
-  const categoryCounts = {};
-  allSubs.forEach(s => categoryCounts[s._id.toString()] = 0);
-
-  // 4) 리뷰 순회하며 집계
   for (const r of reviews) {
-    // a) 감성 키워드별 'pos' 리뷰 개수만 센다 (원하시면 neg/none도 따로)
-    for (const { keyword, sentiment } of r.keywords) {
-      if (sentiment.pos) sentimentCounts[keyword.name] = (sentimentCounts[keyword.name]||0) + 1;
+    // 감성 총계
+    if (Array.isArray(r.sentimentAspects)) {
+      for (const item of r.sentimentAspects) {
+        const s = item?.sentiment || {};
+        if (s.pos) sentimentTotals.pos += Number(!!s.pos);
+        if (s.neg) sentimentTotals.neg += Number(!!s.neg);
+        if (s.none) sentimentTotals.none += Number(!!s.none);
+      }
     }
-    // b) subcategory 배열(categories)에 등장한 ID씩 카운트
-    for (const subId of r.categories) {
-      const id = subId.toString();
-      if (categoryCounts[id] !== undefined) categoryCounts[id]++;
+
+    // 태그 카운트
+    if (Array.isArray(r.categories)) {
+      for (const c of r.categories) {
+        const catId = c?.category;
+        const tagId = c?.value?.tag;
+        if (!catId || !tagId) continue;
+        const key = String(tagId);
+        if (!tagCounts[key]) tagCounts[key] = { category: catId, value: { tag: tagId, count: 0 } };
+        tagCounts[key].value.count += 1;
+      }
     }
   }
 
-  // 5) Location 문서 업데이트
   await Location.findByIdAndUpdate(locationId, {
     aggregatedAnalysis: {
-      sentiments: sentimentCounts,
-      categories:  categoryCounts
+      sentimentAspects: sentimentTotals,
+      categories: tagCounts,
     }
   });
 }

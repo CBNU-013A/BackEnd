@@ -1,35 +1,41 @@
-require("../models/Category"); // 이거 안하면 ref 해도 category가 등록 안 되어 있다고 튕김
-const mongoose = require("mongoose");
-const bcrypt = require("bcrypt");
-const User = require("../models/User");
-const Keyword = require("../models/SubKeyword");
+// server/src/controller/userController.js
 
-// 🔹 사용자 키워드 추가
+require("../models/Category"); // 이거 안하면 ref 해도 category가 등록 안 되어 있다고 튕김
+
+const mongoose = require("mongoose");
+const User = require("../models/User");
+const Prompt = require("../models/PromptRecommend");
+const PreferenceTag = require("../models/PreferenceTag");
+
+// TODO: 전체 변경...
+
+
+// 프롬프트에 키워드 추가
 exports.updateUserKeyword = async (req, res) => {
   const { userId } = req.params;
-  const { subKeywordId } = req.body;
+  const { preferenceTagId } = req.body;
 
   try {
     const user = await User.findById(userId);
     if (!user) return res.status(404).json({ message: "사용자 없음" });
 
-    const keywordItem = user.keywords.find(
-      (kw) => kw.subKeyword.toString() === subKeywordId
+    const preferenceTagItem = user.preferenceTags.find(
+      (kw) => kw.preferenceTag.toString() === preferenceTagId
     );
 
-    if (!keywordItem) {
-      return res.status(404).json({ message: "해당 키워드 없음" });
+    if (!preferenceTagItem) {
+      return res.status(404).json({ message: "해당 PreferenceTag 없음" });
     }
 
-    keywordItem.value = 1;
+    preferenceTagItem.value = 1;
     await user.save();
 
     res
       .status(200)
-      .json({ message: "키워드 업데이트 완료", keyword: keywordItem });
+      .json({ message: "PreferenceTag 업데이트 완료", keyword: preferenceTagItem });
   } catch (err) {
-    console.error("❌ 키워드 업데이트 에러:", err);
-    res.status(500).json({ error: "키워드 업데이트 실패" });
+    console.error("❌ PreferenceTag 업데이트 에러:", err);
+    res.status(500).json({ error: "PreferenceTag 업데이트 실패" });
   }
 };
 
@@ -39,7 +45,7 @@ exports.getUserKeywords = async (req, res) => {
 
   try {
     const user = await User.findById(userId).populate({
-      path: "keywords.subKeyword",
+      path: "keywords.preferenceTag",
       populate: { path: "category" },
     });
 

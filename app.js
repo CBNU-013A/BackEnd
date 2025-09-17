@@ -6,13 +6,11 @@ const cors = require("cors");
 // 각각 라우터 직접 연결
 const authRoutes = require("./server/src/routes/authRoutes");
 const userRoutes = require("./server/src/routes/userRoutes");
-const keywordRoutes = require("./server/src/routes/keywordsRoutes");
 const locationRoutes = require("./server/src/routes/locationRoutes");
 const reviewRoutes = require("./server/src/routes/reviewRoutes");
 const categoryRoutes = require("./server/src/routes/categoryRoutes");
 const featureRoutes = require("./server/src/routes/featureRoutes");
 const recommendRoutes = require("./server/src/routes/recommendRoutes");
-const predictRoutes = require("./server/src/routes/predictRoutes");
 const app = express();
 
 app.use(cors());
@@ -22,7 +20,6 @@ app.use(express.json());
 app.use("/api", authRoutes);
 app.use("/api/users", userRoutes);
 
-app.use("/api/keywords", keywordRoutes);
 app.use("/api/categories", categoryRoutes);
 app.use("/api/features", featureRoutes);
 
@@ -31,8 +28,6 @@ app.use("/api/review", reviewRoutes);
 
 // 추천 알고리즘
 app.use("/api/recommend", recommendRoutes);
-// 
-app.use("/api/predict", predictRoutes);
 const PORT = process.env.PORT || 8001;
 
 // MongoDB 연결

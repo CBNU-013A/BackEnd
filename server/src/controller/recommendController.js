@@ -1,4 +1,5 @@
-// controller/recommendController.js
+// server/src/controller/recommendController.js
+
 const User = require("../models/User");
 const Location = require("../models/Location");
 const { cosineSimilarity } = require("../utils/cosine");

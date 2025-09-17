@@ -1,52 +1,43 @@
 // controller/categoryController.js
 const Category = require("../models/Category");
-const Subcategory = require("../models/SubKeyword");
+const PreferenceTag = require("../models/PreferenceTag");
 
-/**
- * 1) 모든 대분류 조회
- * GET /api/categories
- */
+// 1) 모든 카테고리 조회 GET /api/categories
 exports.listCategories = async (req, res) => {
   try {
     const categories = await Category.find().lean();
     res.status(200).json({ categories });
   } catch (err) {
-    console.error("대분류 조회 실패:", err);
-    res.status(500).json({ message: "대분류 조회 실패" });
+    console.error("❌ 카테고리 조회 실패:", err);
+    res.status(500).json({ message: "❌ 카테고리 조회 실패" });
   }
 };
 
-/**
- * 2) 특정 대분류의 소분류 조회
- * GET /api/categories/:categoryId/subcategories
- */
-exports.listSubcategories = async (req, res) => {
+// 2) 특정 카테고리 태그(PreferenceTag) 조회 GET /api/categories/:categoryId/preferenceTags
+exports.listPreferenceTags = async (req, res) => {
   try {
     const { categoryId } = req.params;
-    const subcategories = await Subcategory.find({
+    const preferenceTags = await PreferenceTag.find({
       category: categoryId,
     }).lean();
-    res.status(200).json({ subcategories });
+    res.status(200).json({ preferenceTags });
   } catch (err) {
-    console.error("소분류 조회 실패:", err);
-    res.status(500).json({ message: "소분류 조회 실패" });
+    console.error("❌ PreferenceTag 조회 실패:", err);
+    res.status(500).json({ message: "❌ PreferenceTag 조회 실패" });
   }
 };
 
-/**
- * 3) 프론트에서 받은 소분류 ID 배열 처리
- * POST /api/categories/selections
- * body: { selections: [ subId1, subId2, ... ] }
- */
+// 3) 프론트에서 받은 PreferenceTag ID 배열 처리 POST /api/categories/selections
+// body: { selections: [ preferenceTagId1, preferenceTagId2, ... ] }
 exports.submitSelections = async (req, res) => {
   try {
     const { selections } = req.body;
     if (!Array.isArray(selections) || selections.length !== 4) {
-      return res.status(400).json({ message: "소분류를 4개 선택해주세요." });
+      return res.status(400).json({ message: "PreferenceTag를 4개 선택해주세요." });
     }
 
-    // subcategories + category 정보 함께 조회
-    const subs = await Subcategory.find({ _id: { $in: selections } })
+    // PreferenceTag + category 정보 함께 조회
+    const subs = await PreferenceTag.find({ _id: { $in: selections } })
       .populate("category", "name")
       .lean();
 
@@ -54,23 +45,23 @@ exports.submitSelections = async (req, res) => {
     if (subs.length !== selections.length) {
       return res
         .status(404)
-        .json({ message: "존재하지 않는 소분류 ID가 있습니다." });
+        .json({ message: "존재하지 않는 PreferenceTag ID가 있습니다." });
     }
 
     // 프론트에 보낼 형태로 가공
     const result = subs.map((s) => ({
       categoryId: s.category._id,
       categoryName: s.category.name,
-      subcategoryId: s._id,
-      subcategoryName: s.name,
+      preferenceTagId: s._id,
+      preferenceTagName: s.name,
     }));
 
     res.status(200).json({
-      message: "선택된 소분류 처리 완료",
+      message: "선택된 PreferenceTag 처리 완료",
       selections: result,
     });
   } catch (err) {
-    console.error("선택 처리 실패:", err);
-    res.status(500).json({ message: "선택 처리 실패" });
+    console.error("PreferenceTag 선택 처리 실패:", err);
+    res.status(500).json({ message: "PreferenceTag 선택 처리 실패" });
   }
 };

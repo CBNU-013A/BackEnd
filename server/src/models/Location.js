@@ -10,15 +10,16 @@ const SentimentCountSchema = new Schema(
   { _id: false }
 );
 
-const categoryCountSchema = new Schema({
-  type: Schema.Types.ObjectId,
-  ref: "Category",
-  value: {
-    type: Schema.Types.ObjectId,
-    ref: "PreferenceTag",
-    count: { type: Number, default: 0 },
+const categoryCountSchema = new Schema(
+  {
+    category: { type: Schema.Types.ObjectId, ref: "Category", required: true },
+    value: {
+      tag: { type: Schema.Types.ObjectId, ref: "PreferenceTag", required: true },
+      count: { type: Number, default: 0 },
+    },
   },
-});
+  { _id: false }
+);
 
 const LocationSchema = new mongoose.Schema(
   {

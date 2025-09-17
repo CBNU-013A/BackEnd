@@ -1,3 +1,5 @@
+// server/src/controller/likeController.js
+
 const User = require("../models/User");
 const Location = require("../models/Location");
 

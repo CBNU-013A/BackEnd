@@ -1,19 +1,7 @@
-const Location = require("../models/Location");
+// server/src/controller/locationController.js
 
-// 위 recommendController와 동일한 헬퍼 복붙(작게 의존 분리하고 싶으면 utils로 빼도 됨)
-const ALL_CHUNGBUK_CITIES = [
-  "청주",
-  "제천",
-  "충주",
-  "진천",
-  "음성",
-  "괴산",
-  "단양",
-  "보은",
-  "옥천",
-  "영동",
-  "증평",
-];
+const Location = require("../models/Location");
+const { ALL_CHUNGBUK_CITIES } = require("../../public/location");
 
 function escapeRegex(str) {
   return String(str).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");

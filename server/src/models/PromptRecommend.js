@@ -17,14 +17,14 @@ const PromptRecommendSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: "City",
     }],
-    category: [{
-        type: Schema.Types.ObjectId,
-        ref: "Category",
-        value: {
-            type: Schema.Types.ObjectId,
-            ref: "PreferenceTag",
-        }
-    }],
+    category: [
+        {
+            category: { type: Schema.Types.ObjectId, ref: "Category", required: true },
+            value: {
+                tag: { type: Schema.Types.ObjectId, ref: "PreferenceTag", required: true },
+            },
+        },
+    ],
     sentimentAspects: [{
         type: Schema.Types.ObjectId,
         ref: "SentimentAspect",

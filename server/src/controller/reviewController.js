@@ -1,8 +1,14 @@
+// server/src/controller/reviewController.js
+
+const axios = require("axios");
+
 const Review = require("../models/Review");
 const Location = require("../models/Location");
-const axios = require("axios");
-const Keyword = require("../models/SentimentAspect");
+const SentimentAspect = require("../models/SentimentAspect");
 const { recomputeLocationAnalysis } = require("../utils/locationAnalysis");
+
+
+// ----Sentiment Analysis----
 
 const requestanalyzeReview = async (content) => {
   /* 감성 분석 요청 */
@@ -32,39 +38,43 @@ const requestanalyzeReview = async (content) => {
 const processSentiments = async (sentiments) => {
   /* 
   감성 분석 response 후처리 
-  - 키워드 -> ID로 변경
+  - Aspect -> ID로 변경
   - str(pos, neg) -> 0, 1 형태로 변경
   - 배열로 반환
   */
   try {
     console.log("감성 분석 결과 처리 시작:", sentiments);
-    const keywordArray = [];
+    const SentimentAspectArray = [];
 
-    for (const [keywordName, sentiment] of Object.entries(sentiments)) {
-      const keywordDoc = await Keyword.findOne({ name: keywordName });
-      if (!keywordDoc) {
-        console.log(`키워드를 찾을 수 없음: ${keywordName}`);
+    for (const [AspectName, sentiment] of Object.entries(sentiments)) {
+      const AspectDoc = await SentimentAspect.findOne({ name: AspectName });
+      if (!AspectDoc) {
+        console.log(`Aspect를 찾을 수 없음: ${AspectName}`);
         continue;
       }
 
       const sentimentObj = {
         pos: sentiment === "pos" ? 1 : 0,
         neg: sentiment === "neg" ? 1 : 0,
+        none: sentiment !== "pos" && sentiment !== "neg" ? 1 : 0,
       };
 
-      keywordArray.push({
-        keyword: keywordDoc._id,
+      SentimentAspectArray.push({
+        aspect: AspectDoc._id,
         sentiment: sentimentObj,
       });
     }
 
-    console.log("처리된 키워드 배열:", keywordArray);
-    return keywordArray;
+    console.log("처리된 Aspect 배열:", SentimentAspectArray);
+    return SentimentAspectArray;
   } catch (err) {
     console.error("❌ 감성 분석 결과 처리 실패:", err);
     return [];
   }
 };
+
+
+// ----Review CRUD----
 
 exports.getReviewsByLocation = async (req, res) => {
   try {
@@ -128,11 +138,11 @@ exports.updateReview = async (req, res) => {
       return res.status(400).json({ message: "감성 분석 실패" });
     }
 
-    let keywordArray = [];
-    keywordArray = await processSentiments(sentiments);
+    let SentimentAspectArray = [];
+    SentimentAspectArray = await processSentiments(sentiments);
     review.content = content;
     review.categories = categories;
-    review.keywords = keywordArray;
+    review.sentimentAspects = SentimentAspectArray;
     await review.save();
 
     // Location 문서에 content string 변경
@@ -169,8 +179,8 @@ exports.createReview = async (req, res) => {
       return res.status(400).json({ message: "감성 분석 실패" });
     }
 
-    let keywordArray = [];
-    keywordArray = await processSentiments(sentiments);
+    let SentimentAspectArray = [];
+    SentimentAspectArray = await processSentiments(sentiments);
     console.log("감성 분석 완료");
 
     // 리뷰 저장
@@ -178,7 +188,7 @@ exports.createReview = async (req, res) => {
       content,
       author: userId,
       location: locationId,
-      keywords: keywordArray,
+      sentimentAspects: SentimentAspectArray,
       categories,
     });
 
@@ -216,9 +226,9 @@ exports.getReviewsByUser = async (req, res) => {
     // 작성자 기준으로 모든 리뷰 불러오기
     // 필요에 따라 location, keywords 등 populate
     const reviews = await Review.find({ author: userId })
-      .select("content location createdAt keywords")
-      .populate("location", "title address") // 장소 정보
-      .populate("keywords.keyword", "name"); // 감성 키워드 이름
+      .select("content location createdAt sentimentAspects")
+      .populate("location", "title address")
+      .populate("sentimentAspects.aspect", "name");
 
     res.status(200).json({
       message: "사용자 작성 리뷰 목록 조회 성공",
@@ -249,13 +259,13 @@ exports.analyzeReview = async (req, res) => {
     }
 
     // 2) 후처리 (Keyword ID 매핑 + pos/neg 숫자 변환)
-    const keywordArray = await processSentiments(sentiments);
+    const SentimentAspectArray = await processSentiments(sentiments);
 
     // 3) 결과 리턴
     res.status(200).json({
       message: "감성 분석 및 키워드 처리 완료",
       rawSentiments: sentiments,
-      processed: keywordArray,
+      processed: SentimentAspectArray,
     });
   } catch (err) {
     console.error("❌ analyzeReview 실패:", err);

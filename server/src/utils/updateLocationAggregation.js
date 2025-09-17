@@ -1,7 +1,7 @@
 // utils/updateLocationAggregation.js
 const Review   = require("../models/Review");
 const Location = require("../models/Location");
-const SubKey   = require("../models/SubKeyword");
+const SubKey   = require("../models/PreferenceTag");
 
 /**
  * 한 Location에 속한 모든 리뷰를 스캔해서

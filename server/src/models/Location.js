@@ -5,47 +5,42 @@ const SentimentCountSchema = new Schema(
   {
     pos: { type: Number, default: 0 },
     neg: { type: Number, default: 0 },
-    none: { type: Number, default: 0 },
+    none: { type: Number, default: 0 }, 
   },
   { _id: false }
 );
 
-const keywordStatSchema = new mongoose.Schema(
-  {
-    subKeyword: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "SubKeyword",
-      required: true,
-    },
-    positive: { type: Number, default: 0 },
-    negative: { type: Number, default: 0 },
-    frequency: { type: Number, default: 0 },
+const categoryCountSchema = new Schema({
+  type: Schema.Types.ObjectId,
+  ref: "Category",
+  value: {
+    type: Schema.Types.ObjectId,
+    ref: "PreferenceTag",
+    count: { type: Number, default: 0 },
   },
-  { _id: false }
-);
+});
 
 const LocationSchema = new mongoose.Schema(
   {
     title: { type: String, required: true }, // 여행지 이름
     aggregatedAnalysis: {
-      // 기능성 키워드 감성 집계 (예: 주차·화장실… 총 11개)
-      sentiments: {
+      sentimentAspects: {
         type: Map,
         of: SentimentCountSchema,
         default: {},
       },
-      // 소분류(SubKeyword) 빈도 벡터 — 21차원
       categories: {
         type: Map,
-        of: Number,
+        of: categoryCountSchema,
         default: {},
       },
     },
     image: [{ type: String }],
     tel: { type: String },
-    keywords: [keywordStatSchema],
     review: [{ type: String }], // 리뷰
     likes: { type: Number, default: 0 }, // 좋아요
+    
+    // ─────────────── TourAPI ───────────────
     contentid: { type: String },
     contenttypeid: { type: String },
     homepage: { type: String },
@@ -63,6 +58,10 @@ const LocationSchema = new mongoose.Schema(
     sgg: { type: String }, // 시군구 전체 (예: "청주시", "괴산군")
     cityKey: { type: String }, // 접미사 제거한 핵심 키 (예: "청주", "괴산")
     cityFlags: { type: Map, of: Boolean, default: {} }, // { "청주": true }
+
+    // ─────────────── LLM ───────────────
+    llmoverview: { type: String },
+    llmreview: { type: String },
   },
   { timestamps: true }
 );

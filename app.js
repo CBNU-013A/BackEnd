@@ -9,8 +9,6 @@ const userRoutes = require("./server/src/routes/userRoutes");
 const keywordRoutes = require("./server/src/routes/keywordsRoutes");
 const locationRoutes = require("./server/src/routes/locationRoutes");
 const reviewRoutes = require("./server/src/routes/reviewRoutes");
-const userLikeRoutes = require("./server/src/routes/userLikeRoutes");
-const locationLikeRoutes = require("./server/src/routes/locationLikeRoutes");
 const categoryRoutes = require("./server/src/routes/categoryRoutes");
 const featureRoutes = require("./server/src/routes/featureRoutes");
 const recommendRoutes = require("./server/src/routes/recommendRoutes");
@@ -20,17 +18,20 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// ❗ API 경로 설정 (여기가 아주 중요)
+// API Path Settings
 app.use("/api", authRoutes);
 app.use("/api/users", userRoutes);
+
 app.use("/api/keywords", keywordRoutes);
-app.use("/api/location", locationRoutes);
-app.use("/api/review", reviewRoutes);
-app.use("/api/users", userLikeRoutes);
-app.use("/api/location", locationLikeRoutes);
 app.use("/api/categories", categoryRoutes);
 app.use("/api/features", featureRoutes);
+
+app.use("/api/location", locationRoutes);
+app.use("/api/review", reviewRoutes);
+
+// 추천 알고리즘
 app.use("/api/recommend", recommendRoutes);
+// 
 app.use("/api/predict", predictRoutes);
 const PORT = process.env.PORT || 8001;
 

@@ -2,6 +2,7 @@
 const express = require("express");
 const router = express.Router();
 const userController = require("../controller/userController");
+const likeController = require("../controller/likeController");
 
 // 🔹 사용자 키워드
 router.post("/:userId/keywords", userController.updateUserKeyword);
@@ -30,5 +31,9 @@ router.get(
   "/:userId/keyword-preferences",
   userController.getKeywordPreferences
 );
+
+router.post("/:userId/likes", likeController.addUserLike);
+router.get("/:userId/likes", likeController.getUserLikes);
+router.delete("/:userId/likes", likeController.removeUserLike);
 
 module.exports = router;

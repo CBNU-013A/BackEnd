@@ -1,4 +1,4 @@
-// models/SubKeyword.js
+// models/PreferenceTag.js
 const mongoose = require("mongoose");
 
 const sentimentSchema = new mongoose.Schema(
@@ -9,7 +9,7 @@ const sentimentSchema = new mongoose.Schema(
   { _id: false }
 );
 
-const subKeywordSchema = new mongoose.Schema({
+const preferenceTagSchema = new mongoose.Schema({
   name: { type: String, required: true },
   sentiment: sentimentSchema,
   category: {
@@ -20,4 +20,4 @@ const subKeywordSchema = new mongoose.Schema({
 });
 
 module.exports =
-  mongoose.models.SubKeyword || mongoose.model("SubKeyword", subKeywordSchema);
+  mongoose.models.PreferenceTag || mongoose.model("PreferenceTag", preferenceTagSchema);

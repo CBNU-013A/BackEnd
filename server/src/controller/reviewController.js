@@ -1,7 +1,7 @@
 const Review = require("../models/Review");
 const Location = require("../models/Location");
 const axios = require("axios");
-const Keyword = require("../models/Keyword");
+const Keyword = require("../models/SentimentAspect");
 const { recomputeLocationAnalysis } = require("../utils/locationAnalysis");
 
 const requestanalyzeReview = async (content) => {

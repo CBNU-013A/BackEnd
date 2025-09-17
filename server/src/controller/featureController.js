@@ -1,5 +1,5 @@
 // controller/featureController.js
-const Keyword = require("../models/Keyword");
+const Keyword = require("../models/SentimentAspect");
 
 // 8개 기능성 키워드 명칭
 const FEATURE_NAMES = [

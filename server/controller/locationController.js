@@ -1,5 +1,78 @@
 const Location = require("../models/Location");
 
+// 위 recommendController와 동일한 헬퍼 복붙(작게 의존 분리하고 싶으면 utils로 빼도 됨)
+const ALL_CHUNGBUK_CITIES = [
+  "청주",
+  "제천",
+  "충주",
+  "진천",
+  "음성",
+  "괴산",
+  "단양",
+  "보은",
+  "옥천",
+  "영동",
+  "증평",
+];
+
+function escapeRegex(str) {
+  return String(str).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function buildCityOrFilters(cities, province = "충청북도") {
+  const cityList = (Array.isArray(cities) ? cities : [])
+    .map((s) => s.trim())
+    .filter(Boolean);
+  const finalCities = cityList.length > 0 ? cityList : ALL_CHUNGBUK_CITIES;
+
+  const provinceSafe = escapeRegex(province);
+  const filters = finalCities.map((city) => {
+    const citySafe = escapeRegex(city);
+    const regex = new RegExp(
+      `^\\s*${provinceSafe}\\s+${citySafe}(시|군|구)\\b`
+    );
+    return { address: { $regex: regex } };
+  });
+
+  return { orFilters: filters, appliedCities: finalCities };
+}
+
+/**
+ * POST /api/locations/filter
+ * body: { cities?: string[], page?: number, pageSize?: number }
+ * cities 비어있으면 → 충북 11개 전체
+ */
+exports.filterByCities = async (req, res) => {
+  try {
+    const { cities = [], page = 1, pageSize = 20 } = req.body;
+    const p = Math.max(1, parseInt(page, 10) || 1);
+    const ps = Math.min(100, Math.max(1, parseInt(pageSize, 10) || 20));
+
+    const { orFilters, appliedCities } = buildCityOrFilters(cities);
+    const query = { $or: orFilters };
+
+    const [items, total] = await Promise.all([
+      Location.find(query)
+        .skip((p - 1) * ps)
+        .limit(ps)
+        .lean(),
+      Location.countDocuments(query),
+    ]);
+
+    res.json({
+      message: "필터 조회 완료",
+      appliedCities,
+      page: p,
+      pageSize: ps,
+      total,
+      items,
+    });
+  } catch (e) {
+    console.error("[filterByCities error]", e);
+    res.status(500).json({ error: e.message });
+  }
+};
+
 exports.getAllLocations = async (req, res) => {
   try {
     const locations = await Location.find({});

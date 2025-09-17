@@ -8,4 +8,7 @@ const recCtrl = require("../controller/recommendController");
 // POST /api/recommend/:userId
 router.post("/:userId", auth, recCtrl.recommendByUser);
 
+// 추천 (도시 비어있으면 11개 전체로 간주)
+router.post("/", recCtrl.recommendByRegion);
+
 module.exports = router;

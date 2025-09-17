@@ -29,12 +29,6 @@ services:
   pik-nlp:
     image: huseongyoon/piknlp-server:1.5.0
     container_name: pik-nlp
-    # deploy:
-    #   resources:
-    #     reservations:
-    #       devices:
-    #         - driver: nvidia
-    #           capabilities: [gpu]
     ports:
       - "14500:18000"
     environment:
@@ -44,6 +38,7 @@ services:
       - DEVICE=${DEVICE:-cpu} # 'cuda' 또는 'cpu'
       - API_KEY=${NLP_API_KEY}
       - ENV=${NLP_ENV}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
     command: uv run uvicorn app.main:app --host 0.0.0.0 --port 18000 --workers 4
     networks:
       - pik-network

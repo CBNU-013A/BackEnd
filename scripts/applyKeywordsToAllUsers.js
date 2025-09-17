@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 const dotenv = require("dotenv");
-const User = require("./models/User");
-const SubKeyword = require("./models/SubKeyword");
+const User = require("../server/src/models/User");
+const SubKeyword = require("../server/src/models/SubKeyword");
 const connectDB = require("./database");
 
 require("dotenv").config(); // 반드시 최상단에서 불러오기

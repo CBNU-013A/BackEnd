@@ -2,15 +2,15 @@
 require("dotenv").config();
 const mongoose = require("mongoose");
 const connectDB = require("./database");
-const Location = require("./models/Location");
+const Location = require("../server/src/models/Location");
 
 // 모델/유틸
-const Review = require("./models/Review");
+const Review = require("../server/src/models/Review");
 const {
   requestanalyzeReview,
   processSentiments,
-} = require("./controller/reviewController");
-const { recomputeLocationAnalysis } = require("./utils/locationAnalysis");
+} = require("../server/src/controller/reviewController");
+const { recomputeLocationAnalysis } = require("../server/src/utils/locationAnalysis");
 
 async function analyze(locationId) {
   // 1) MongoDB 연결

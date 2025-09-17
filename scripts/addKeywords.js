@@ -1,6 +1,6 @@
 // insertKeywords.js
 const mongoose = require("mongoose");
-const Keyword = require("./models/Keyword"); // 상대 경로 확인 필요
+const Keyword = require("../server/src/models/Keyword"); // 상대 경로 확인 필요
 const connectDB = require("./database");
 
 const keywords = [

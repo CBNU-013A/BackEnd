@@ -1,7 +1,7 @@
 // routes/recommendRoutes.js
 const express = require("express");
 const router = express.Router();
-const auth = require("../middlewares/authMiddleware");
+const auth = require("../../middlewares/authMiddleware");
 const recCtrl = require("../controller/recommendController");
 
 // POST /api/recommend  (body: { userId, cities?: string[], limit?: number })

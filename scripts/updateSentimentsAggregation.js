@@ -1,9 +1,9 @@
 // scripts/updateSentimentsAggregation.js
 require("dotenv").config();
 const mongoose = require("mongoose");
-const Review = require("./models/Review");
-const Location = require("./models/Location");
-const Keyword = require("./models/Keyword");
+const Review = require("../server/src/models/Review");
+const Location = require("../server/src/models/Location");
+const Keyword = require("../server/src/models/Keyword");
 const connectDB = require("./database");
 
 async function recomputeSentiments(locationId) {

@@ -10,8 +10,8 @@ const mongoose = require("mongoose");
 const isLikelyObjectId = /^[0-9a-f]{24}$/i;
 
 // (1) Mongoose 모델 불러오기
-const Location = require("./models/Location");
-const Keyword = require("./models/Keyword");
+const Location = require("../server/src/models/Location");
+const Keyword = require("../server/src/models/Keyword");
 
 // (2) 동기화 로직 함수
 async function syncAllLocationsToKeywords() {

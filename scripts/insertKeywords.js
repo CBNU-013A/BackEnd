@@ -1,8 +1,8 @@
 const mongoose = require("mongoose");
 const dotenv = require("dotenv");
-const User = require("./models/User");
-const Category = require("./models/Category");
-const SubKeyword = require("./models/SubKeyword");
+const User = require("../server/src/models/User");
+const Category = require("../server/src/models/Category");
+const SubKeyword = require("../server/src/models/SubKeyword");
 const connectDB = require("./database");
 
 dotenv.config();

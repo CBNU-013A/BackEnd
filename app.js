@@ -4,17 +4,17 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 
 // 각각 라우터 직접 연결
-const authRoutes = require("./server/routes/authRoutes");
-const userRoutes = require("./server/routes/userRoutes");
-const keywordRoutes = require("./server/routes/keywordsRoutes");
-const locationRoutes = require("./server/routes/locationRoutes");
-const reviewRoutes = require("./server/routes/reviewRoutes");
-const userLikeRoutes = require("./server/routes/userLikeRoutes");
-const locationLikeRoutes = require("./server/routes/locationLikeRoutes");
-const categoryRoutes = require("./server/routes/categoryRoutes");
-const featureRoutes = require("./server/routes/featureRoutes");
-const recommendRoutes = require("./server/routes/recommendRoutes");
-const predictRoutes = require("./server/routes/predictRoutes");
+const authRoutes = require("./server/src/routes/authRoutes");
+const userRoutes = require("./server/src/routes/userRoutes");
+const keywordRoutes = require("./server/src/routes/keywordsRoutes");
+const locationRoutes = require("./server/src/routes/locationRoutes");
+const reviewRoutes = require("./server/src/routes/reviewRoutes");
+const userLikeRoutes = require("./server/src/routes/userLikeRoutes");
+const locationLikeRoutes = require("./server/src/routes/locationLikeRoutes");
+const categoryRoutes = require("./server/src/routes/categoryRoutes");
+const featureRoutes = require("./server/src/routes/featureRoutes");
+const recommendRoutes = require("./server/src/routes/recommendRoutes");
+const predictRoutes = require("./server/src/routes/predictRoutes");
 const app = express();
 
 app.use(cors());

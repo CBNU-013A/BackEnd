@@ -3,7 +3,7 @@ const fs = require("fs");
 const path = require("path");
 const dotenv = require("dotenv");
 const connectDB = require("./database");
-const Location = require("./models/Location");
+const Location = require("../server/src/models/Location");
 
 dotenv.config();
 async function insertLocation() {

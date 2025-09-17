@@ -1,10 +1,10 @@
 // scripts/populateLocationAggregation.js
 require("dotenv").config();
 const mongoose = require("mongoose");
-const Location = require("./models/Location");
+const Location = require("../server/src/models/Location");
 const {
   recomputeLocationAnalysis,
-} = require("./utils/updateLocationAggregation");
+} = require("../server/src/utils/updateLocationAggregation");
 const connectDB = require("./database");
 
 async function populateAll() {

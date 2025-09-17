@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const Location = require("./models/Location");
+const Location = require("../server/src/models/Location");
 const connectDB = require("./database");
 
 mongoose.set("strictQuery", false);

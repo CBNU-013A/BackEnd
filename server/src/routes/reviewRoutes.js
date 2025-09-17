@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const auth = require("../middlewares/authMiddleware");
+const auth = require("../../middlewares/authMiddleware");
 const reviewController = require("../controller/reviewController");
 
 // POST /review/analyze

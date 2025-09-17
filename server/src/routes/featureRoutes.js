@@ -1,7 +1,7 @@
 // routes/featureRoutes.js
 const express = require("express");
 const router = express.Router();
-const auth = require("../middlewares/authMiddleware"); // 필요 시 적용
+const auth = require("../../middlewares/authMiddleware"); // 필요 시 적용
 const featureCtrl = require("../controller/featureController");
 
 // 1) 8개 기능성 카테고리 조회

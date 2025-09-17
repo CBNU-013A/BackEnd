@@ -1,12 +1,12 @@
 // scripts/migrateReviews.js
 require("dotenv").config();
 const mongoose = require("mongoose");
-const Review = require("./models/Review");
-const { recomputeLocationAnalysis } = require("./utils/locationAnalysis");
+const Review = require("../server/src/models/Review");
+const { recomputeLocationAnalysis } = require("../server/src/utils/locationAnalysis");
 const {
   requestanalyzeReview,
   processSentiments,
-} = require("./controller/reviewController");
+} = require("../server/src/controller/reviewController");
 const connectDB = require("./database");
 
 async function migrate() {

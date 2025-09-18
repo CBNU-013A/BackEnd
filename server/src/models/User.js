@@ -15,7 +15,10 @@ const UserSchema = new Schema({
     default: [],
   },
   prompts: [{ type: Schema.Types.ObjectId, ref: "PromptRecommend" }],
+  isActive: {
+    type: Boolean,
+    default: true,
+  },
 });
-
 
 module.exports = mongoose.models.User || mongoose.model("User", UserSchema);

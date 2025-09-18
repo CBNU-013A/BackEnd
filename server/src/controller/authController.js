@@ -55,3 +55,33 @@ exports.login = async (req, res) => {
     res.status(500).json({ error: "로그인 실패", detail: err.message });
   }
 };
+
+// 회원탈퇴
+exports.deactivateUser = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const { password } = req.body; // 비밀번호 확인용 입력
+
+    // 1) 사용자 찾기
+    const user = await User.findById(userId);
+    if (!user) return res.status(404).json({ message: "사용자 없음" });
+
+    // 2) 비밀번호 검증
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(401).json({ message: "비밀번호가 일치하지 않습니다." });
+    }
+
+    // 3) 비활성화 처리 + likes 비우기
+    user.isActive = false;
+    user.likes = [];
+    await user.save();
+
+    res
+      .status(200)
+      .json({ message: "회원탈퇴 처리 완료 (비활성화)", userId: user._id });
+  } catch (err) {
+    console.error("❌ deactivateUser 에러:", err);
+    res.status(500).json({ error: "회원탈퇴 실패" });
+  }
+};

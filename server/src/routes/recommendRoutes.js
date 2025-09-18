@@ -15,5 +15,10 @@ router
   .get(recCtrl.recommendByUser)
   .post(recCtrl.recommendByUser);
 
+// POST api/recommend/filter카테 고리 추천 api
 router.post("/filter", recCtrl.multiStepFilter);
+
+// GET api/recommend/history/:userId 카테고리 추천 기록 조회
+router.get("/history/:userId", recCtrl.getRecommendHistory);
+
 module.exports = router;

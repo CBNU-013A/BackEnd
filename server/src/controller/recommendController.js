@@ -233,25 +233,30 @@ exports.multiStepFilter = async (req, res) => {
     // 5) 최대 10개 제한
     const topLocations = candidates.slice(0, 20);
 
-    // 6) PromptRecommend 저장
-    const saved = await PromptRecommend.create({
-      userId,
-      city: cityIds,
-      category: [
-        accompany && {
-          category: categoryMap.accompany,
-          value: { tag: accompany },
-        },
-        season && { category: categoryMap.season, value: { tag: season } },
-        place && { category: categoryMap.place, value: { tag: place } },
-        activity && {
-          category: categoryMap.activity,
-          value: { tag: activity },
-        },
-      ].filter(Boolean),
-      sentimentAspects: conveniences,
-      result: topLocations.map((l) => l._id),
-    });
+    // 6) PromptRecommend 저장, 있으면 Update
+    const saved = await PromptRecommend.findOneAndUpdate(
+      { userId }, // 조건: 같은 유저
+      {
+        userId,
+        city: cityIds,
+        category: [
+          accompany && {
+            category: categoryMap.accompany,
+            value: { tag: accompany },
+          },
+          season && { category: categoryMap.season, value: { tag: season } },
+          place && { category: categoryMap.place, value: { tag: place } },
+          activity && {
+            category: categoryMap.activity,
+            value: { tag: activity },
+          },
+        ].filter(Boolean),
+        sentimentAspects: conveniences,
+        result: topLocations.map((l) => l._id),
+        time: new Date(),
+      },
+      { upsert: true, new: true } // 없으면 새로 만들고, 있으면 업데이트
+    );
 
     res.json({
       message: "추천 완료",
@@ -266,6 +271,47 @@ exports.multiStepFilter = async (req, res) => {
     });
   } catch (err) {
     console.error("❌ multiStepFilter 에러:", err);
+    res.status(500).json({ error: err.message });
+  }
+};
+
+// 사용자 추천 히스토리 조회
+// GET /api/recommend/history/:userId
+exports.getRecommendHistory = async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    const history = await PromptRecommend.findOne({ userId })
+      .populate("city", "name")
+      .populate("category.category", "name")
+      .populate("category.value.tag", "name")
+      .populate("sentimentAspects", "name")
+      .populate("result", "title cityKey")
+      .sort({ time: -1 })
+      .lean();
+
+    if (!history) {
+      return res.status(404).json({ message: "추천 기록 없음" });
+    }
+
+    res.json({
+      message: "최신 추천 기록 조회 성공",
+      id: history._id,
+      time: history.time,
+      city: history.city.map((c) => c.name),
+      categories: history.category.map((c) => ({
+        category: c.category?.name,
+        tag: c.value?.tag?.name,
+      })),
+      conveniences: history.sentimentAspects.map((s) => s.name),
+      results: history.result.map((r) => ({
+        id: r._id,
+        title: r.title,
+        city: r.cityKey,
+      })),
+    });
+  } catch (err) {
+    console.error("❌ getLatestRecommendHistory 에러:", err);
     res.status(500).json({ error: err.message });
   }
 };

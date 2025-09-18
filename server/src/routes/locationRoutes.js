@@ -16,4 +16,7 @@ router.post("/filter", locationController.filterByCities);
 //router.post("/:locationId/likes", likeController.addLikeToLocation);
 router.get("/:locationId/likes", likeController.getLocationLikes);
 
+// 특정 장소의 llmOverview 조회
+router.get("/:locationId/llmOverview", locationController.getLlmOverview);
+
 module.exports = router;

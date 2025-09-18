@@ -131,3 +131,24 @@ exports.getRandomLocationWithReviews = async (req, res) => {
     res.status(500).json({ error: e.message });
   }
 };
+
+// 특정 location의 llmOverview만 조회
+exports.getLlmOverview = async (req, res) => {
+  try {
+    const { locationId } = req.params;
+
+    const location = await Location.findById(locationId, "llmoverview");
+    if (!location) {
+      return res.status(404).json({ message: "장소를 찾을 수 없음" });
+    }
+
+    res.status(200).json({
+      message: "llmOverview 조회 성공",
+      locationId: locationId,
+      llmoverview: location.llmoverview,
+    });
+  } catch (err) {
+    console.error("❌ llmOverview 조회 에러:", err);
+    res.status(500).json({ error: "서버 오류" });
+  }
+};

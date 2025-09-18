@@ -44,6 +44,7 @@ services:
       - pik-network
   pik-react-front:
     image: eunzs/pik-react-front:latest
+    platform: linux/amd64
     container_name: pik-react-front
     expose:
       - "3000"

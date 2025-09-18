@@ -4,35 +4,50 @@ const mongoose = require("mongoose");
 const { Schema } = mongoose;
 
 const PromptRecommendSchema = new Schema({
-    userId: {
+  userId: {
+    type: Schema.Types.ObjectId,
+    ref: "User",
+    required: true,
+  },
+  time: {
+    type: Date,
+    default: Date.now,
+  },
+  city: [
+    {
+      type: Schema.Types.ObjectId, // ObjectId → String
+    },
+  ],
+  category: [
+    {
+      category: {
         type: Schema.Types.ObjectId,
-        ref: "User",
+        ref: "Category",
         required: true,
-    },
-    time: {
-        type: Date,
-        default: Date.now,
-    },
-    city: [{
-        type: Schema.Types.ObjectId,
-        ref: "City",
-    }],
-    category: [
-        {
-            category: { type: Schema.Types.ObjectId, ref: "Category", required: true },
-            value: {
-                tag: { type: Schema.Types.ObjectId, ref: "PreferenceTag", required: true },
-            },
+      },
+      value: {
+        tag: {
+          type: Schema.Types.ObjectId,
+          ref: "PreferenceTag",
+          required: true,
         },
-    ],
-    sentimentAspects: [{
-        type: Schema.Types.ObjectId,
-        ref: "SentimentAspect",
-    }],
-    result: [{
-        type: Schema.Types.ObjectId,
-        ref: "Location",
-    }]
+      },
+    },
+  ],
+  sentimentAspects: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "SentimentAspect",
+    },
+  ],
+  result: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "Location",
+    },
+  ],
 });
 
-module.exports = mongoose.models.PromptRecommend || mongoose.model("PromptRecommend", PromptRecommendSchema);
+module.exports =
+  mongoose.models.PromptRecommend ||
+  mongoose.model("PromptRecommend", PromptRecommendSchema);

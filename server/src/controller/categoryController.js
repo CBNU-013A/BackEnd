@@ -33,7 +33,9 @@ exports.submitSelections = async (req, res) => {
   try {
     const { selections } = req.body;
     if (!Array.isArray(selections) || selections.length !== 4) {
-      return res.status(400).json({ message: "PreferenceTag를 4개 선택해주세요." });
+      return res
+        .status(400)
+        .json({ message: "PreferenceTag를 4개 선택해주세요." });
     }
 
     // PreferenceTag + category 정보 함께 조회

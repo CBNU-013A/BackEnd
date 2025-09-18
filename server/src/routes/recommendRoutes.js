@@ -15,4 +15,5 @@ router
   .get(recCtrl.recommendByUser)
   .post(recCtrl.recommendByUser);
 
+router.post("/filter", recCtrl.multiStepFilter);
 module.exports = router;

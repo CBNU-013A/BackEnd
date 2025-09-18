@@ -5,10 +5,10 @@ const userController = require("../controller/userController");
 const likeController = require("../controller/likeController");
 
 // 🔹 사용자 키워드
-router.post("/:userId/keywords", userController.updateUserKeyword);
-router.get("/:userId/keywords", userController.getUserKeywords);
-router.patch("/:userId/keywords", userController.resetUserKeywords);
-router.patch("/:userId/keywords/remove", userController.removeUserKeyword);
+// router.post("/:userId/keywords", userController.updateUserKeyword);
+// router.get("/:userId/keywords", userController.getUserKeywords);
+// router.patch("/:userId/keywords", userController.resetUserKeywords);
+// router.patch("/:userId/keywords/remove", userController.removeUserKeyword);
 
 // 🔹 사용자 최근 검색어
 router.post("/:userId/recentsearch", userController.addRecentSearch);

@@ -2,7 +2,9 @@
 
 const User = require("../models/User");
 const Location = require("../models/Location");
+const City = require("../models/City");
 const { cosineSimilarity } = require("../utils/cosine");
+const PromptRecommend = require("../models/PromptRecommend");
 
 // POST /api/recommend
 // body: { userId, cities?: ["청주","충주"], limit?: 10 }
@@ -154,5 +156,132 @@ exports.recommendByUser = async (req, res) => {
   } catch (e) {
     console.error("[recommendByUser]", e);
     res.status(500).json({ error: e.message });
+  }
+};
+
+// POST /api/recommend/filter
+// body: { accompany, season, place, activity, conveniences }
+// Category ObjectId 매핑 (DB에 실제 존재하는 값으로 교체해야 함)
+// 카테고리 고정 매핑
+
+// 카테고리 ObjectId 매핑 (DB에 맞게 수정)
+const categoryMap = {
+  accompany: "68cabaf0a9613e0e59a214cb",
+  season: "68cabaf0a9613e0e59a214cc",
+  place: "68cabaf0a9613e0e59a214cd",
+  activity: "68cabaf0a9613e0e59a214ce",
+};
+
+exports.multiStepFilter = async (req, res) => {
+  try {
+    const {
+      userId,
+      city = [],
+      accompany,
+      season,
+      place,
+      activity,
+      conveniences = [],
+    } = req.body;
+
+    console.log("📩 요청 body:", req.body);
+
+    // 1) City 매핑
+    const cityDocs = await City.find({ name: { $in: city } });
+    const cityIds = cityDocs.map((c) => c._id);
+    const cityKeys = cityDocs.map((c) => c.name);
+
+    console.log("📌 cityDocs:", cityDocs);
+    console.log("📌 cityIds:", cityIds);
+    console.log("📌 cityKeys:", cityKeys);
+
+    // 2) Location 필터
+    let query = {};
+    if (cityKeys.length > 0) {
+      query.cityKey = { $in: cityKeys };
+    }
+    let candidates = await Location.find(query).lean();
+    console.log("📌 city 필터 후:", candidates.length);
+
+    // 3) PreferenceTag 필터
+    const chosenTags = [accompany, season, place, activity].filter(Boolean);
+
+    if (chosenTags.length > 0) {
+      candidates = candidates.filter((loc) => {
+        const catEntries = Object.values(
+          loc.aggregatedAnalysis?.categories || {}
+        );
+        return chosenTags.every((tag) =>
+          catEntries.some((c) => String(c.value?.tag) === String(tag))
+        );
+      });
+    }
+
+    console.log("📌 preferenceTag 필터 후:", candidates.length);
+
+    if (candidates[0]) {
+      console.log("📌 sample preferencesTag:", candidates[0].preferencesTag);
+    }
+
+    // 4) SentimentAspect 필터
+    if (conveniences.length > 0) {
+      console.log("📌 Sentiment filter 적용, conveniences:", conveniences);
+      candidates = candidates
+        .map((loc) => {
+          let score = 0;
+          conveniences.forEach((aspectId) => {
+            const asp = loc.aggregatedAnalysis?.sentiments?.[aspectId];
+            console.log("   🔎 aspectId:", aspectId, "-> asp:", asp);
+            if (asp) {
+              const total = (asp.pos || 0) + (asp.neg || 0) + (asp.none || 0);
+              if (total > 0) {
+                score += asp.pos / total;
+              }
+            }
+          });
+          return { ...loc, convenienceScore: score / conveniences.length };
+        })
+        .sort((a, b) => b.convenienceScore - a.convenienceScore);
+    }
+
+    console.log("📌 편의성 필터 후:", candidates.length);
+
+    // 5) 최대 10개
+    const topLocations = candidates.slice(0, 20);
+
+    // 6) PromptRecommend 저장
+    const saved = await PromptRecommend.create({
+      userId,
+      city: cityIds,
+      category: [
+        accompany && {
+          category: categoryMap.accompany,
+          value: { tag: accompany },
+        },
+        season && { category: categoryMap.season, value: { tag: season } },
+        place && { category: categoryMap.place, value: { tag: place } },
+        activity && {
+          category: categoryMap.activity,
+          value: { tag: activity },
+        },
+      ].filter(Boolean),
+      sentimentAspects: conveniences,
+      result: topLocations.map((l) => l._id),
+    });
+
+    res.json({
+      message: "추천 완료",
+      totalCandidates: candidates.length,
+      recommendations: topLocations.map((loc) => ({
+        id: loc._id,
+        title: loc.title,
+        city: loc.cityKey,
+        convenienceScore: loc.convenienceScore || null,
+      })),
+      savedId: saved._id,
+    });
+  } catch (err) {
+    console.error("❌ multiStepFilter 에러:", err);
+    res.status(500).json({ error: err.message });
   }
 };

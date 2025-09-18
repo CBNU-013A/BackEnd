@@ -17,17 +17,17 @@ app.use(cors());
 app.use(express.json());
 
 // API Path Settings
-app.use("/api", authRoutes);
-app.use("/api/users", userRoutes);
+app.use("/", authRoutes);
+app.use("/users", userRoutes);
 
-app.use("/api/categories", categoryRoutes);
-app.use("/api/features", featureRoutes);
+app.use("/categories", categoryRoutes);
+app.use("/features", featureRoutes);
 
-app.use("/api/location", locationRoutes);
-app.use("/api/review", reviewRoutes);
+app.use("/location", locationRoutes);
+app.use("/review", reviewRoutes);
 
 // 추천 알고리즘
-app.use("/api/recommend", recommendRoutes);
+app.use("/recommend", recommendRoutes);
 const PORT = process.env.PORT || 8001;
 
 // MongoDB 연결

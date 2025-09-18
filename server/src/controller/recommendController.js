@@ -184,69 +184,53 @@ exports.multiStepFilter = async (req, res) => {
       conveniences = [],
     } = req.body;
 
-    console.log("📩 요청 body:", req.body);
-
     // 1) City 매핑
-    const cityDocs = await City.find({ name: { $in: city } });
+    const cityDocs = await City.find({ name: { $in: city } }).lean();
     const cityIds = cityDocs.map((c) => c._id);
     const cityKeys = cityDocs.map((c) => c.name);
 
-    console.log("📌 cityDocs:", cityDocs);
-    console.log("📌 cityIds:", cityIds);
-    console.log("📌 cityKeys:", cityKeys);
-
-    // 2) Location 필터
+    // 2) Location cityKey 필터만 DB에서
     let query = {};
     if (cityKeys.length > 0) {
       query.cityKey = { $in: cityKeys };
     }
-    let candidates = await Location.find(query).lean();
+
+    let candidates = await Location.find(query)
+      .select("title cityKey aggregatedAnalysis")
+      .lean();
+
     console.log("📌 city 필터 후:", candidates.length);
 
-    // 3) PreferenceTag 필터
+    // 3) preferenceTag 필터 (Object.values 로 확인)
     const chosenTags = [accompany, season, place, activity].filter(Boolean);
-
     if (chosenTags.length > 0) {
       candidates = candidates.filter((loc) => {
-        const catEntries = Object.values(
-          loc.aggregatedAnalysis?.categories || {}
-        );
-        return chosenTags.every((tag) =>
-          catEntries.some((c) => String(c.value?.tag) === String(tag))
-        );
+        const cats = Object.values(loc.aggregatedAnalysis?.categories || {});
+        const tags = cats.map((c) => String(c.value?.tag));
+        return chosenTags.every((tag) => tags.includes(String(tag)));
       });
     }
 
     console.log("📌 preferenceTag 필터 후:", candidates.length);
 
-    if (candidates[0]) {
-      console.log("📌 sample preferencesTag:", candidates[0].preferencesTag);
-    }
-
     // 4) SentimentAspect 필터
     if (conveniences.length > 0) {
-      console.log("📌 Sentiment filter 적용, conveniences:", conveniences);
       candidates = candidates
         .map((loc) => {
           let score = 0;
           conveniences.forEach((aspectId) => {
             const asp = loc.aggregatedAnalysis?.sentiments?.[aspectId];
-            console.log("   🔎 aspectId:", aspectId, "-> asp:", asp);
             if (asp) {
               const total = (asp.pos || 0) + (asp.neg || 0) + (asp.none || 0);
-              if (total > 0) {
-                score += asp.pos / total;
-              }
+              if (total > 0) score += asp.pos / total;
             }
           });
           return { ...loc, convenienceScore: score / conveniences.length };
         })
-        .sort((a, b) => b.convenienceScore - a.convenienceScore);
+        .sort((a, b) => (b.convenienceScore || 0) - (a.convenienceScore || 0));
     }
 
-    console.log("📌 편의성 필터 후:", candidates.length);
-
-    // 5) 최대 10개
+    // 5) 최대 10개 제한
     const topLocations = candidates.slice(0, 20);
 
     // 6) PromptRecommend 저장

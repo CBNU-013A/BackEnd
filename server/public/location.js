@@ -1,0 +1,14 @@
+const ALL_CHUNGBUK_CITIES = [
+    "청주",
+    "제천",
+    "충주",
+    "진천",
+    "음성",
+    "괴산",
+    "단양",
+    "보은",
+    "옥천",
+    "영동",
+    "증평",
+  ];
+module.exports = { ALL_CHUNGBUK_CITIES };

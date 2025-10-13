@@ -17,7 +17,6 @@ const requestanalyzeReview = async (content) => {
   /* 감성 분석 요청 */
   try {
     console.log("감성 분석 시작:", content);
-    console.log("SENTIMENT_API_URL =", process.env.SENTIMENT_API_URL);
     const response = await axios.post(
       `${process.env.SENTIMENT_API_URL}/api/v1/predict`,
       {
@@ -82,9 +81,13 @@ exports.getReviewsByLocation = async (req, res) => {
   try {
     const locationId = req.params.locationId;
 
-    const reviews = await Review.find({ location: locationId }).select(
-      "author content"
-    );
+    const reviews = await Review.find({ location: locationId })
+      .select("author content createdAt sentimentAspects categories")
+      .populate("author", "nickname profileImage")
+      .populate("sentimentAspects.aspect", "name")
+      .populate("categories.category", "name")
+      .populate("categories.value.tag", "name")
+      .sort({ createdAt: -1 });
 
     res.status(200).json({
       message: "리뷰 목록 조회 성공",

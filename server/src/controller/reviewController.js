@@ -334,19 +334,21 @@ exports.analyzeReview = async (req, res) => {
     }
 
     // 1) 감성 분석
-    const sentiments = await requestanalyzeReview(content);
-    if (!sentiments) {
+    const [sentiments, categories] = await requestanalyzeReview(content);
+    if (!sentiments || !categories) {
       return res.status(500).json({ message: "감성 분석 요청 실패" });
     }
 
     // 2) 후처리 (Keyword ID 매핑 + pos/neg 숫자 변환)
     const SentimentAspectArray = await processSentiments(sentiments);
+    const CategoryArray = await processCategories(categories);
 
     // 3) 결과 리턴
     res.status(200).json({
       message: "감성 분석 및 키워드 처리 완료",
       rawSentiments: sentiments,
       processed: SentimentAspectArray,
+      processedCategories: CategoryArray,
     });
   } catch (err) {
     console.error("❌ analyzeReview 실패:", err);
@@ -356,3 +358,4 @@ exports.analyzeReview = async (req, res) => {
 
 exports.requestanalyzeReview = requestanalyzeReview;
 exports.processSentiments = processSentiments;
+exports.processCategories = processCategories;

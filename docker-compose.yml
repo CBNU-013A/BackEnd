@@ -17,12 +17,14 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: app-container
-    expose:
-      - "8001"
+    ports:
+      - "8001:8001"  # 배포 전 확인용 포트
     depends_on:
       - mongodb
     environment:
       MONGO_URI: mongodb+srv://${MONGO_INITDB_ROOT_USERNAME}:${MONGO_INITDB_ROOT_PASSWORD}@${MONGO_CLUSTER}t/${MONGO_DB}?retryWrites=true&w=majority
+      SENTIMENT_API_URL: ${SENTIMENT_API_URL}
+      SENTIMENT_API_KEY: ${SENTIMENT_API_KEY}
     networks:
       - pik-network
 

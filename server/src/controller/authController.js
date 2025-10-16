@@ -9,6 +9,11 @@ const generateToken = (user) => {
   });
 };
 
+// health check
+exports.health = (req, res) => {
+  res.status(200).json({ message: "OK" });
+};
+
 // 회원가입
 exports.register = async (req, res) => {
   try {

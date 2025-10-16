@@ -166,11 +166,12 @@ exports.deleteReview = async (req, res) => {
     await Review.findByIdAndDelete(reviewId);
 
     res.status(200).json({ message: "리뷰 삭제 성공" });
+    await recomputeLocationAnalysis(review.location);
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "리뷰 삭제 실패" });
   }
-  await recomputeLocationAnalysis(review.location);
+  
 };
 
 exports.updateReview = async (req, res) => {
@@ -218,11 +219,11 @@ exports.updateReview = async (req, res) => {
     }
 
     res.status(200).json({ message: "리뷰 수정 완료", review });
+    await recomputeLocationAnalysis(review.location);
   } catch (err) {
     console.error("❌ 리뷰 수정 실패:", err);
     res.status(500).json({ error: "리뷰 수정 실패", detail: err.message });
   }
-  await recomputeLocationAnalysis(review.location);
 };
 
 exports.createReview = async (req, res) => {
@@ -287,13 +288,12 @@ exports.createReview = async (req, res) => {
       message: "리뷰 등록 및 장소에 연결 완료",
       review: savedReview,
     });
-
+    await recomputeLocationAnalysis(locationId);
   } catch (err) {
     console.error("❌ 리뷰 저장 실패:", err);
     res.status(500).json({ error: "리뷰 저장 실패", detail: err.message });
   }
   // Location 문서에 리뷰 추가 후 종합 집계 업데이트인데 이거 왜 있지? 진짜 모름...
-  await recomputeLocationAnalysis(locationId);
 };
 
 // 사용자 작성 리뷰 전체 조회

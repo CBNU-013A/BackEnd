@@ -229,33 +229,68 @@ exports.multiStepFilter = async (req, res) => {
 
     console.log("📌 city 필터 후:", candidates.length);
 
-    // 3) preferenceTag 필터 (Object.values 로 확인)
+    // 3) preferenceTag 필터 (태그 키/값 모두 매칭 + 문자열 정규화)
     const chosenTags = [accompany, season, place, activity].filter(Boolean);
     if (chosenTags.length > 0) {
+      // 모든 선택 태그를 문자열로 통일
+      const chosen = chosenTags.map((t) => String(t));
+
       candidates = candidates.filter((loc) => {
-        const cats = Object.values(loc.aggregatedAnalysis?.categories || {});
-        const tags = cats.map((c) => String(c.value?.tag));
-        return chosenTags.every((tag) => tags.includes(String(tag)));
+        const locCats = loc.aggregatedAnalysis?.categories || {};
+
+        // 케이스1) 키가 subTag(ObjectId)인 경우 + 케이스2) 값 안에 tag가 들어있는 경우를 모두 커버
+        const tagKeys = Object.keys(locCats).map(String);
+        const tagValues = Object.values(locCats)
+          .map((c) => (c && c.value ? String(c.value.tag) : undefined))
+          .filter(Boolean);
+
+        // 세트로 합치고 문자열로 통일
+        const available = new Set([...tagKeys, ...tagValues]);
+
+        // 선택된 모든 태그가 포함되어야 통과
+        return chosen.every((t) => available.has(t));
       });
     }
 
     console.log("📌 preferenceTag 필터 후:", candidates.length);
 
-    // 4) SentimentAspect 필터
+    // 4) SentimentAspect 필터 (키 정규화 + 매칭 기반 평균 + 안정 정렬)
     if (conveniences.length > 0) {
       candidates = candidates
         .map((loc) => {
-          let score = 0;
+          const sentimentsRaw = loc.aggregatedAnalysis?.sentiments || {};
+          // 모든 키를 문자열로 정규화 (ObjectId, 숫자 등 섞여 있어도 안전)
+          const sentiments = Object.fromEntries(
+            Object.entries(sentimentsRaw).map(([k, v]) => [String(k), v])
+          );
+
+          let sum = 0;
+          let matched = 0;
+
           conveniences.forEach((aspectId) => {
-            const asp = loc.aggregatedAnalysis?.sentiments?.[aspectId];
-            if (asp) {
-              const total = (asp.pos || 0) + (asp.neg || 0) + (asp.none || 0);
-              if (total > 0) score += asp.pos / total;
+            const key = String(aspectId);
+            const asp = sentiments[key];
+            if (!asp) return;
+
+            const total = (asp.pos || 0) + (asp.neg || 0) + (asp.none || 0);
+            if (total > 0) {
+              sum += (asp.pos || 0) / total;
+              matched += 1;
             }
           });
-          return { ...loc, convenienceScore: score / conveniences.length };
+
+          // 매칭이 없으면 -1로 설정하여 정렬 시 맨 뒤로 밀어냄
+          const convenienceScore = matched > 0 ? sum / matched : -1;
+
+          return { ...loc, convenienceScore };
         })
-        .sort((a, b) => (b.convenienceScore || 0) - (a.convenienceScore || 0));
+        .sort((a, b) => {
+          // 1) 점수 내림차순
+          const diff = (b.convenienceScore ?? -1) - (a.convenienceScore ?? -1);
+          if (diff !== 0) return diff;
+          // 2) 동점이면 제목 가나다 정렬로 안정화
+          return (a.title || "").localeCompare(b.title || "");
+        });
     }
 
     // 5) 최대 10개 제한

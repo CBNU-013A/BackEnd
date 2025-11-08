@@ -151,6 +151,9 @@ exports.getReviewsByLocation = async (req, res) => {
 
 exports.deleteReview = async (req, res) => {
   try {
+    if (!req.user || !req.user._id) {
+      return res.status(401).json({ message: "인증 정보가 없습니다. 다시 로그인해주세요." });
+    }
     const reviewId = req.params.reviewId;
     const userId = req.user._id;
 
@@ -165,6 +168,17 @@ exports.deleteReview = async (req, res) => {
 
     await Review.findByIdAndDelete(reviewId);
 
+    // Location.review 배열도 최신 리뷰 내용으로 동기화
+    const locationId = review.location;
+    const locationReviews = await Review.find({ location: locationId }).select("content");
+    const reviewContents = locationReviews.map((r) => r.content);
+
+    await Location.findByIdAndUpdate(
+      locationId,
+      { review: reviewContents },
+      { new: true }
+    );
+
     res.status(200).json({ message: "리뷰 삭제 성공" });
     await recomputeLocationAnalysis(review.location);
   } catch (err) {
@@ -176,9 +190,12 @@ exports.deleteReview = async (req, res) => {
 
 exports.updateReview = async (req, res) => {
   try {
+    if (!req.user || !req.user._id) {
+      return res.status(401).json({ message: "인증 정보가 없습니다. 다시 로그인해주세요." });
+    }
     const reviewId = req.params.reviewId;
     const userId = req.user._id;
-    const content = req.body;
+    const { content } = req.body;
 
     const review = await Review.findById(reviewId);
     if (!review) {
@@ -206,19 +223,26 @@ exports.updateReview = async (req, res) => {
     
     await review.save();
 
-    // Location 문서에 content string 변경
-    // TODO: 추후 id로 변경
-    const updatedReview = await Location.findByIdAndUpdate(
-      review.location,
-      { $push: { review: review.content } },
+    // Location 문서에 리뷰 텍스트 동기화 (해당 장소의 모든 리뷰 내용으로 재구성)
+    const locationId = review.location;
+    const locationReviews = await Review.find({ location: locationId }).select("content");
+    const reviewContents = locationReviews.map((r) => r.content);
+
+    const updatedLocation = await Location.findByIdAndUpdate(
+      locationId,
+      { review: reviewContents },
       { new: true }
     );
 
-    if (!updatedReview) {
+    if (!updatedLocation) {
       return res.status(404).json({ message: "해당 장소를 찾을 수 없습니다." });
     }
 
-    res.status(200).json({ message: "리뷰 수정 완료", review });
+    res.status(200).json({
+      message: "리뷰 수정 완료",
+      review,
+      location: updatedLocation,
+    });
     await recomputeLocationAnalysis(review.location);
   } catch (err) {
     console.error("❌ 리뷰 수정 실패:", err);

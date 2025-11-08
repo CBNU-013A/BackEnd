@@ -3,6 +3,7 @@ const express = require("express");
 const router = express.Router();
 const userController = require("../controller/userController");
 const likeController = require("../controller/likeController");
+const auth = require("../../middlewares/authMiddleware");
 
 // 🔹 사용자 키워드
 // router.post("/:userId/keywords", userController.updateUserKeyword);
@@ -35,5 +36,12 @@ router.get(
 router.post("/:userId/likes", likeController.addUserLike);
 router.get("/:userId/likes", likeController.getUserLikes);
 router.delete("/:userId/likes", likeController.removeUserLike);
+
+// 즐겨찾기 기반 추천
+router.get(
+  "/:userId/likes/recommendations",
+  auth,
+  likeController.recommendByLikes
+);
 
 module.exports = router;
